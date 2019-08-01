@@ -2,11 +2,11 @@
 
 Simple chat room web application developed by Paul Oladele and Greg Marlow
 
-# Chat-App-Frontend built by Greg Marlow
+## Chat-App-Frontend built by Greg Marlow
 
 Link:..................
 
-# Chat-App-Backend-Server built by Paul Oladele
+## Chat-App-Backend-Server built by Paul Oladele
 
 * Activate the server by making a get request to the end point: https://chat-app-backend-server.herokuapp.com/
 
