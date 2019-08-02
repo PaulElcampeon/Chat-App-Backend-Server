@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +54,11 @@ public class ChatRoomControllerIT {
     private int port;
 
     private CompletableFuture<String> completableFuture = new CompletableFuture<>();
+
+    @Before
+    public void tearDown() {
+        messageRepository.deleteAll();
+    }
 
     @Test
     public void checkClientHasBeenAssigned_Test() throws InterruptedException, ExecutionException, TimeoutException {
