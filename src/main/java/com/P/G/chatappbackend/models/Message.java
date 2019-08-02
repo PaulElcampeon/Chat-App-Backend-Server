@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Message {
 
     @Id
-    private ObjectId objectId;
+    private ObjectId _id;
     private String sender;
     private String content;
     private long timeSent;
@@ -22,5 +22,6 @@ public class Message {
     public Message(String sender, String content) {
         this.sender = sender;
         this.content = content;
+
     }
 }
