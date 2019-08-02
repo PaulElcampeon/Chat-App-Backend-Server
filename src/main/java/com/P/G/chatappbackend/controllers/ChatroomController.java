@@ -1,6 +1,5 @@
 package com.P.G.chatappbackend.controllers;
 
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,6 +45,6 @@ public class ChatroomController {
 
     @MessageMapping(value = "/previous-messages")
     public void getPreviousMessages(@RequestBody MoreMessagesRequest moreMessagesRequest, @Header("simpSessionId") String sessionId) {
-        simpMessagingTemplate.convertAndSend("/queue/"+sessionId, chatroomService.getPreviousBatchOfMessages(moreMessagesRequest));
+        simpMessagingTemplate.convertAndSend("/queue/" + sessionId, chatroomService.getPreviousBatchOfMessages(moreMessagesRequest));
     }
 }
