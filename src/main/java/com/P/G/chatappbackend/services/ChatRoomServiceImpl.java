@@ -2,9 +2,11 @@ package com.P.G.chatappbackend.services;
 
 import com.P.G.chatappbackend.cache.NameCache;
 import com.P.G.chatappbackend.models.Message;
+import com.P.G.chatappbackend.models.MoreMessagesRequest;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.util.NameCreator;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +38,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     public void processMessage(Message message) {
         message.setTimeSent(System.currentTimeMillis());
-//        messageRepository.insert(message);
+        messageRepository.insert(message);
     }
 
     @Override
@@ -50,7 +52,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-    public List<Message> getPreviousBatchOfMessages(int i) {
-        return messageRepository.findAll().stream().skip(i * 20).limit(20).collect(Collectors.toList());
+    public List<Message> getPreviousBatchOfMessages(MoreMessagesRequest moreMessagesRequest) {
+        return messageRepository.findFirst10By_idLessThan(moreMessagesRequest.getMessageId());
     }
 }
