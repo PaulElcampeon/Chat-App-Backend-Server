@@ -8,4 +8,11 @@ import org.bson.types.ObjectId;
 public class MoreMessagesRequest {
 
     private ObjectId messageId;
+
+    public MoreMessagesRequest() {}
+
+    public MoreMessagesRequest(ObjectId messageId) {
+        this.messageId = messageId;
+    }
+
 }
