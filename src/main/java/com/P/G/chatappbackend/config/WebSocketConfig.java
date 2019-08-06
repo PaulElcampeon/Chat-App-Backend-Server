@@ -1,10 +1,6 @@
 package com.P.G.chatappbackend.config;
 
-import static org.springframework.messaging.simp.SimpMessageType.CONNECT_ACK;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.P.G.chatappbackend.services.ChatRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -16,19 +12,21 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-import com.P.G.chatappbackend.cache.NameCache;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.springframework.messaging.simp.SimpMessageType.CONNECT_ACK;
 
 @EnableWebSocketMessageBroker
 @Configuration
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Autowired
-    private NameCache nameCache;
+    private ChatRoomService chatRoomService;
 
     private Logger logger = Logger.getLogger(WebSocketConfig.class.getName());
 
@@ -37,7 +35,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry
                 .addEndpoint("/ima")//(ima = Instant Messaging App);
                 .setAllowedOrigins("*");
-//                .withSockJS();
     }
 
     @Override
@@ -64,7 +61,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             logger.log(
                                     Level.INFO,
                                     String.format("%s just disconnected from the chat room", sessionId));
-                            nameCache.freeUpName(sessionId);
+                            chatRoomService.freeUpName(sessionId);
+                            chatRoomService.updateChatroomWithCurrentUsers();
                         }
                         return message;
                     }
@@ -84,7 +82,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             final StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.CONNECTED);
                             accessor.setSessionId(sessionId);
                             // add custom headers
-                            final String name = nameCache.getNameForClient(sessionId);
+                            final String name = chatRoomService.assignUserRandomName(sessionId);
                             accessor.addNativeHeader("name", name);
                             logger.log(Level.INFO, String.format("Client with sessionId %s has been assigned the name %s", sessionId, name));
 
@@ -94,9 +92,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         return message;
                     }
                 });
-    }
-
-    private String getDestinationOfMessage(Message message) {
-        return ((LinkedMultiValueMap) message.getHeaders().get("nativeHeaders")).get("destination").get(0).toString();
     }
 }
