@@ -1,14 +1,9 @@
 package com.P.G.chatappbackend.util;
 
-import com.P.G.chatappbackend.cache.NameCache;
-import org.omg.CORBA.PUBLIC_MEMBER;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
