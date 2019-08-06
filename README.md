@@ -4,7 +4,7 @@ Simple chat room web application developed by Paul Oladele and Greg Marlow
 
 ### Chat-App-Frontend built by Greg Marlow
 
-Link:..................
+Link: https://github.com/gregggm/messenger-app
 
 ### Chat-App-Backend-Server built by Paul Oladele
 
