@@ -11,11 +11,17 @@ public interface ChatRoomService {
 
     String assignUserRandomName(String sessionId);
 
-    void processMessage(Message message);
+    Message processMessage(Message message);
 
     List<String> getListOfCurrentUsers();
 
     void freeUpName(String name);
 
-    List<Message> getPreviousBatchOfMessages(MoreMessagesRequest moreMessagesRequest);
+    List<Message> getPrevious10Messages(MoreMessagesRequest moreMessagesRequest);
+
+    List<Message> getFirst10Messages();
+
+    int getNumberOfCurrentUsers();
+
+    void updateChatroomWithCurrentUsers();
 }

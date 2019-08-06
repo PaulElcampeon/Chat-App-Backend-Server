@@ -5,13 +5,12 @@ import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.models.MoreMessagesRequest;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.util.NameCreator;
-
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ChatRoomServiceImpl implements ChatRoomService {
@@ -25,6 +24,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Autowired
     private NameCreator nameCreator;
 
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
     @Override
     public void initializeNameCache() {
         nameCache.setNameCache(nameCreator.createNames());
@@ -36,9 +38,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-    public void processMessage(Message message) {
+    public Message processMessage(Message message) {
         message.setTimeSent(System.currentTimeMillis());
-        messageRepository.insert(message);
+        return messageRepository.insert(message);
     }
 
     @Override
@@ -52,7 +54,26 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-    public List<Message> getPreviousBatchOfMessages(MoreMessagesRequest moreMessagesRequest) {
+    public List<Message> getPrevious10Messages(MoreMessagesRequest moreMessagesRequest) {
         return messageRepository.findFirst10By_idLessThan(moreMessagesRequest.getMessageId());
     }
+
+    @Override
+    public List<Message> getFirst10Messages() {
+        List<Message> messages = messageRepository.findFirst10ByOrderByTimeSentDesc();
+        Collections.reverse(messages);
+        return messages;
+    }
+
+    @Override
+    public int getNumberOfCurrentUsers() {
+        return nameCache.getNumberOfActiveUsers();
+    }
+
+    @Override
+    public void updateChatroomWithCurrentUsers() {
+        simpMessagingTemplate.convertAndSend("/topic/public-room/current-users", getListOfCurrentUsers());
+    }
+
+
 }
