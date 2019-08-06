@@ -13,4 +13,5 @@ public interface MessageRepository extends MongoRepository<Message, ObjectId> {
 
     List<Message> findFirst10By_idLessThan(ObjectId _id);
 
+    List<Message> findFirst10ByOrderByTimeSentDesc();
 }
