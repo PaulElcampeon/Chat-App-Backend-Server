@@ -28,4 +28,4 @@ Link:..................
 * Once the command has finished running, change directory into the target folder.
 * Once there you should see a jar called "chat-app-backend-0.0.1-SNAPSHOT.jar".
 * Now run command "java -jar chat-app-backend-0.0.1-SNAPSHOT.jar". 
-* This shoud launch and run the application locally on port 8080.
+* This shoud launch and run the application locally on port 8081.
