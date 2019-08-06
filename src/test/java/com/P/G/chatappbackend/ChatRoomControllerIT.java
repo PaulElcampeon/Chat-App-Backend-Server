@@ -46,13 +46,8 @@ public class ChatRoomControllerIT {
     private NameCache nameCache;
 
     @Autowired
-    private ChatRoomService chatRoomService;
-
-    @Autowired
     private MessageRepository messageRepository;
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
 
     @LocalServerPort
     private int port;
