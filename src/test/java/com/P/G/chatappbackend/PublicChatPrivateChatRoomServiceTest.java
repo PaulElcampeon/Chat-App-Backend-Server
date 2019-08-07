@@ -3,7 +3,7 @@ package com.P.G.chatappbackend;
 import com.P.G.chatappbackend.cache.NameCache;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
-import com.P.G.chatappbackend.services.ChatRoomServiceImpl;
+import com.P.G.chatappbackend.services.PublicChatRoomServiceImpl;
 import com.P.G.chatappbackend.util.NameCreator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.mongodb.core.mapping.TextScore;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ChatRoomServiceTest {
+public class PublicChatPrivateChatRoomServiceTest {
 
     @Spy
     private NameCache nameCache;
@@ -34,7 +33,7 @@ public class ChatRoomServiceTest {
     private MessageRepository messageRepository;
 
     @InjectMocks
-    private ChatRoomServiceImpl chatRoomService;
+    private PublicChatRoomServiceImpl chatRoomService;
 
 
     @Test

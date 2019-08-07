@@ -5,7 +5,7 @@ import com.P.G.chatappbackend.models.MoreMessagesRequest;
 
 import java.util.List;
 
-public interface ChatRoomService {
+public interface PublicChatRoomService {
 
     void initializeNameCache();
 

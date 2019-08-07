@@ -1,6 +1,6 @@
 package com.P.G.chatappbackend.config;
 
-import com.P.G.chatappbackend.services.ChatRoomService;
+import com.P.G.chatappbackend.services.PublicChatRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -26,7 +26,7 @@ import static org.springframework.messaging.simp.SimpMessageType.CONNECT_ACK;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Autowired
-    private ChatRoomService chatRoomService;
+    private PublicChatRoomService publicChatRoomService;
 
     private Logger logger = Logger.getLogger(WebSocketConfig.class.getName());
 
@@ -61,8 +61,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             logger.log(
                                     Level.INFO,
                                     String.format("%s just disconnected from the chat room", sessionId));
-                            chatRoomService.freeUpName(sessionId);
-                            chatRoomService.updateChatroomWithCurrentUsers();
+                            publicChatRoomService.freeUpName(sessionId);
+                            publicChatRoomService.updateChatroomWithCurrentUsers();
                         }
                         return message;
                     }
@@ -82,7 +82,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             final StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.CONNECTED);
                             accessor.setSessionId(sessionId);
                             // add custom headers
-                            final String name = chatRoomService.assignUserRandomName(sessionId);
+                            final String name = publicChatRoomService.assignUserRandomName(sessionId);
                             accessor.addNativeHeader("name", name);
                             logger.log(Level.INFO, String.format("Client with sessionId %s has been assigned the name %s", sessionId, name));
 

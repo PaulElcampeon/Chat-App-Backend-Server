@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-public class ChatRoomServiceImpl implements ChatRoomService {
+public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     @Autowired
     private MessageRepository messageRepository;
