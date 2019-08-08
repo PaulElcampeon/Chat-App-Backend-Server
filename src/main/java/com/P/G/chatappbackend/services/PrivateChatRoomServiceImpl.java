@@ -54,6 +54,8 @@ public class PrivateChatRoomServiceImpl implements PrivateChatRoomService {
 
     @Override
     public List<Message> getPrevious10Messages(MoreMessagesRequest moreMessagesRequest, String roomId) {
+        System.out.println(moreMessagesRequest);
+        System.out.println(roomId);
         return null;
     }
 

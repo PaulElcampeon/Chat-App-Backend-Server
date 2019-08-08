@@ -54,11 +54,11 @@ public class PrivateChatRoomController {
         return privateChatRoomService.getLatest10Messages(roomId);
     }
 
-//    @MessageMapping(value = "/get/previous-messages/{roomId}")
-//    @SendTo(value = "/topic/{roomId}/previous-messages")
-//    public List<Message> getPreviousMessages(@DestinationVariable String roomId, @Header("simpSessionId") String sessionId) {
-//        logger.log(Level.INFO, String.format("Client with sessionId: %s made a request for active users in room with id: %s", sessionId, roomId));
-//        return privateChatRoomService.getPrevious10Messages(MoreMessagesRequest more, String roomId)
-//    }
+    @MessageMapping(value = "/get/previous-messages/{roomId}")
+    @SendTo(value = "/topic/{roomId}/previous-messages")
+    public List<Message> getPreviousMessages(@DestinationVariable String roomId, @Header("simpSessionId") String sessionId) {
+        logger.log(Level.INFO, String.format("Client with sessionId: %s made a request for active users in room with id: %s", sessionId, roomId));
+        return privateChatRoomService.getPrevious10Messages(MoreMessagesRequest m, String roomId);
+    }
 
 }
