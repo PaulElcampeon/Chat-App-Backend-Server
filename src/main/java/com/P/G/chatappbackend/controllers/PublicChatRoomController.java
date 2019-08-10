@@ -1,7 +1,7 @@
 package com.P.G.chatappbackend.controllers;
 
 import com.P.G.chatappbackend.models.Message;
-import com.P.G.chatappbackend.models.MoreMessagesRequest;
+import com.P.G.chatappbackend.dto.PublicMoreMessagesRequest;
 import com.P.G.chatappbackend.services.PublicChatRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
@@ -53,8 +53,8 @@ public class PublicChatRoomController {
 
     @RequestMapping(value = "/message/previous/10", method = RequestMethod.POST)
     @ResponseBody
-    public List<Message> getPreviousMessages(@RequestBody MoreMessagesRequest moreMessagesRequest) {
-        return chatroomServicePublic.getPrevious10Messages(moreMessagesRequest);
+    public List<Message> getPreviousMessages(@RequestBody PublicMoreMessagesRequest publicMoreMessagesRequest) {
+        return chatroomServicePublic.getPrevious10Messages(publicMoreMessagesRequest);
     }
 
     @MessageMapping(value = "/send")
@@ -65,8 +65,8 @@ public class PublicChatRoomController {
     }
 
     @MessageMapping(value = "/previous-messages")
-    public void getPreviousMessages(@RequestBody MoreMessagesRequest moreMessagesRequest, @Header("simpSessionId") String sessionId) {
+    public void getPreviousMessages(@RequestBody PublicMoreMessagesRequest publicMoreMessagesRequest, @Header("simpSessionId") String sessionId) {
         logger.log(Level.INFO, String.format("User with session id:%s made a request for more previous messages", sessionId));
-        simpMessagingTemplate.convertAndSend("/queue/" + sessionId, chatroomServicePublic.getPrevious10Messages(moreMessagesRequest));
+        simpMessagingTemplate.convertAndSend("/queue/" + sessionId, chatroomServicePublic.getPrevious10Messages(publicMoreMessagesRequest));
     }
 }
