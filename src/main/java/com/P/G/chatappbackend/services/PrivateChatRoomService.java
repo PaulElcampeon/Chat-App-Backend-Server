@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface PrivateChatRoomService {
 
+    void initializeNames();
+
     String createRoom();
 
     Message processMessage(Message message, String roomId);

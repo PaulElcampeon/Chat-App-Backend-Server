@@ -15,10 +15,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
@@ -42,9 +39,14 @@ public class PrivateChatRoomServiceImpl implements PrivateChatRoomService {
 
     private final ConcurrentSkipListSet<String> nameTracker = new ConcurrentSkipListSet<>();
 
-    private List<String> possibleNames = nameCreator.createNamesList();
+    private List<String> possibleNames = new ArrayList<>();
 
     private Logger logger = Logger.getLogger(PrivateChatRoomServiceImpl.class.getName());
+
+    @Override
+    public void initializeNames() {
+        possibleNames = nameCreator.createNamesList();
+    }
 
     @Override
     public String createRoom() {
