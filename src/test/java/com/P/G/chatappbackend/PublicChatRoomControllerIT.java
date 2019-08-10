@@ -30,7 +30,7 @@ import com.P.G.chatappbackend.repositiories.MessageRepository;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {ChatAppBackendApplication.class, WebSocketConfig.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ChatRoomControllerIT {
+public class PublicChatRoomControllerIT {
 
     @Autowired
     private NameCache nameCache;
