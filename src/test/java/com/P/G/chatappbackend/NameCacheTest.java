@@ -25,7 +25,7 @@ public class NameCacheTest {
 
     @Before
     public void initNameCache() {
-        nameCache.setNameCache(nameCreator.createNames());
+        nameCache.setNameCache(nameCreator.createNamesConcurrentHashMap());
     }
 
     @Test

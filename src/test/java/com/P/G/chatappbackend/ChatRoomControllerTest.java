@@ -28,7 +28,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import com.P.G.chatappbackend.config.WebSocketConfig;
 import com.P.G.chatappbackend.models.Message;
-import com.P.G.chatappbackend.models.MoreMessagesRequest;
+import com.P.G.chatappbackend.dto.PublicMoreMessagesRequest;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 
 @RunWith(SpringRunner.class)
@@ -78,7 +78,7 @@ public class ChatRoomControllerTest {
 
         messageRepository.saveAll(Arrays.asList(message1, message2, message3, message4));
         stompSession.subscribe("/queue/"+completableFuture3.get(10, TimeUnit.SECONDS), new getPreviousMessagesFrameHandler());
-        stompSession.send("/app/previous-messages", new MoreMessagesRequest(message3.get_id()));
+        stompSession.send("/app/previous-messages", new PublicMoreMessagesRequest(message3.get_id()));
         List<Message> messages = completableFuture2.get(10, TimeUnit.SECONDS);
         assertEquals(messageRepository.findFirst10By_idLessThan(message3.get_id()).size(), messages.size());
         stompSession.disconnect();

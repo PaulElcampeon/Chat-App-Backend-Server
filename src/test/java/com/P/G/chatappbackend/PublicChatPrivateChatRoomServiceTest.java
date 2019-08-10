@@ -40,7 +40,7 @@ public class PublicChatPrivateChatRoomServiceTest {
     public void initializeNameCache_Test() {
         chatRoomService.initializeNameCache();
         assertEquals("Number of names should be 125",125, nameCache.getNames().mappingCount());
-        verify(nameCreator,times(1)).createNames();
+        verify(nameCreator,times(1)).createNamesConcurrentHashMap();
         verify(nameCache,times(1)).setNameCache(Mockito.any());
     }
 
