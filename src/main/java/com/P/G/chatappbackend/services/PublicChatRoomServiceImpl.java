@@ -2,7 +2,7 @@ package com.P.G.chatappbackend.services;
 
 import com.P.G.chatappbackend.cache.NameCache;
 import com.P.G.chatappbackend.models.Message;
-import com.P.G.chatappbackend.models.MoreMessagesRequest;
+import com.P.G.chatappbackend.dto.PublicMoreMessagesRequest;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.util.NameCreator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     @Override
     public void initializeNameCache() {
-        nameCache.setNameCache(nameCreator.createNames());
+        nameCache.setNameCache(nameCreator.createNamesConcurrentHashMap());
     }
 
     @Override
@@ -54,8 +54,8 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     }
 
     @Override
-    public List<Message> getPrevious10Messages(MoreMessagesRequest moreMessagesRequest) {
-        return messageRepository.findFirst10By_idLessThan(moreMessagesRequest.getMessageId());
+    public List<Message> getPrevious10Messages(PublicMoreMessagesRequest publicMoreMessagesRequest) {
+        return messageRepository.findFirst10By_idLessThan(publicMoreMessagesRequest.getMessageId());
     }
 
     @Override
