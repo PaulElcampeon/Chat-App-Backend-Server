@@ -1,5 +1,6 @@
 package com.P.G.chatappbackend.controllers;
 
+import com.P.G.chatappbackend.dto.NameRequest;
 import com.P.G.chatappbackend.dto.PrivateMoreMessageRequest;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.dto.PublicMoreMessagesRequest;
@@ -32,10 +33,16 @@ public class PrivateChatRoomController {
     }
 
     @MessageMapping(value = "/get/name/{roomId}")
-    @SendTo(value = "/topic/{roomId}/name")
-    public String getName(@DestinationVariable String roomId, @Header("simpSessionId") String sessionId) {
+    public void getName(@DestinationVariable(value = "roomId") String roomId, @Header("simpSessionId") String sessionId) {
         logger.log(Level.INFO, String.format("Client with sessionId:%s has just made a request for a name in room %s", sessionId, roomId));
-        return privateChatRoomService.getName(sessionId, roomId);
+        simpMessagingTemplate.convertAndSend(String.format("/queue/%s/%s", roomId, sessionId), new NameRequest(privateChatRoomService.getName(sessionId, roomId)));
+    }
+
+    @MessageMapping(value = "/send/{roomId}")
+    @SendTo(value = "/topic/{roomId}")
+    public Message processMessage(@Payload Message message, @DestinationVariable String roomId, @Header("simpSessionId") String sessionId) {
+        logger.log(Level.INFO, String.format("%s has just sent the message %s", message.getSender(), message.getContent()));
+        return privateChatRoomService.processMessage(message, roomId);
     }
 
     @MessageMapping(value = "/update/session/{roomId}")

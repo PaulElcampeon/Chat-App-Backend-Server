@@ -53,6 +53,8 @@ public class PrivateChatRoomServiceImpl implements PrivateChatRoomService {
         UUID uuid = UUID.randomUUID();
         String roomId = uuid.toString();
 
+        roomId = roomId.replace("-","");
+
         Room room = new Room(roomId);
 
         privateChatRoomRepository.insert(room);
@@ -97,7 +99,7 @@ public class PrivateChatRoomServiceImpl implements PrivateChatRoomService {
 
         logger.log(Level.INFO, String.format("Client with sessionId:%s was given the name %s", sessionId, name));
 
-        logger.log(Level.INFO, String.format("Client with sessionId:%s requested for a name in the room with id:%s modified:%d", roomId, updateResult.getModifiedCount()));
+        logger.log(Level.INFO, String.format("Client with sessionId:%s requested for a name in the room with id:%s modified:%d",sessionId, roomId, updateResult.getModifiedCount()));
 
         return name;
     }

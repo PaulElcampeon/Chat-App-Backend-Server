@@ -74,6 +74,4 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     public void updateChatroomWithCurrentUsers() {
         simpMessagingTemplate.convertAndSend("/topic/public-room/current-users", getListOfCurrentUsers());
     }
-
-
 }

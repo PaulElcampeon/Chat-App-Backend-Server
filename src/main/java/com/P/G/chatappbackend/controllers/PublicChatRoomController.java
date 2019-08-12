@@ -51,11 +51,11 @@ public class PublicChatRoomController {
         return chatroomServicePublic.getNumberOfCurrentUsers();
     }
 
-    @RequestMapping(value = "/message/previous/10", method = RequestMethod.POST)
-    @ResponseBody
-    public List<Message> getPreviousMessages(@RequestBody PublicMoreMessagesRequest publicMoreMessagesRequest) {
-        return chatroomServicePublic.getPrevious10Messages(publicMoreMessagesRequest);
-    }
+//    @RequestMapping(value = "/message/previous/10", method = RequestMethod.POST)
+//    @ResponseBody
+//    public List<Message> getPreviousMessages(@RequestBody PublicMoreMessagesRequest publicMoreMessagesRequest) {
+//        return chatroomServicePublic.getPrevious10Messages(publicMoreMessagesRequest);
+//    }
 
     @MessageMapping(value = "/send")
     @SendTo(value = "/topic/public-room")

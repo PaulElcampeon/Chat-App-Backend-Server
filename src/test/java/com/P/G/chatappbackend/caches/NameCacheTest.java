@@ -1,4 +1,4 @@
-package com.P.G.chatappbackend;
+package com.P.G.chatappbackend.caches;
 
 import com.P.G.chatappbackend.cache.NameCache;
 import com.P.G.chatappbackend.util.NameCreator;

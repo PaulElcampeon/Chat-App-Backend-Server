@@ -1,4 +1,4 @@
-package com.P.G.chatappbackend;
+package com.P.G.chatappbackend.controllers;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import com.P.G.chatappbackend.ChatAppBackendApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

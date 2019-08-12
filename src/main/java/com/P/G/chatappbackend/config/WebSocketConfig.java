@@ -84,8 +84,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             // add custom headers
                             final String name = publicChatRoomService.assignUserRandomName(sessionId);
                             accessor.addNativeHeader("name", name);
+                            accessor.addNativeHeader("sessionId", sessionId);
                             logger.log(Level.INFO, String.format("Client with sessionId %s has been assigned the name %s", sessionId, name));
-
                             final Message<?> newMessage = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
                             return newMessage;
                         }
