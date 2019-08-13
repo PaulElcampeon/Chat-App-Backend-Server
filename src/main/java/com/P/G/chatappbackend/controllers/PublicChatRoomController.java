@@ -1,8 +1,9 @@
 package com.P.G.chatappbackend.controllers;
 
 import com.P.G.chatappbackend.models.Message;
-import com.P.G.chatappbackend.dto.PublicMoreMessagesRequest;
+import com.P.G.chatappbackend.models.MessageId;
 import com.P.G.chatappbackend.services.PublicChatRoomService;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -53,8 +54,9 @@ public class PublicChatRoomController {
 
     @RequestMapping(value = "/message/previous/10", method = RequestMethod.POST)
     @ResponseBody
-    public List<Message> getPreviousMessages(@RequestBody PublicMoreMessagesRequest publicMoreMessagesRequest) {
-        return chatroomServicePublic.getPrevious10Messages(publicMoreMessagesRequest);
+    public List<Message> getPreviousMessages(@RequestBody MessageId messageId) {
+        ObjectId objectId = new ObjectId(messageId.getTimestamp(), messageId.getMachineIdentifier(), messageId.getProcessIdentifier(), messageId.getCounter());
+        return chatroomServicePublic.getPrevious10Messages(objectId);
     }
 
     @MessageMapping(value = "/send")
@@ -65,9 +67,10 @@ public class PublicChatRoomController {
     }
 
     @MessageMapping(value = "/previous-messages")
-    public void getPreviousMessages(@RequestBody PublicMoreMessagesRequest publicMoreMessagesRequest, @Header("simpSessionId") String sessionId) {
+    public void getPreviousMessages(@RequestBody MessageId messageId, @Header("simpSessionId") String sessionId) {
         logger.log(Level.INFO, String.format("User with session id:%s made a request for more previous messages", sessionId));
-        simpMessagingTemplate.convertAndSend("/queue/" + sessionId, chatroomServicePublic.getPrevious10Messages(publicMoreMessagesRequest));
+        ObjectId objectId = new ObjectId(messageId.getTimestamp(), messageId.getMachineIdentifier(), messageId.getProcessIdentifier(), messageId.getCounter());
+        simpMessagingTemplate.convertAndSend("/queue/" + sessionId, chatroomServicePublic.getPrevious10Messages(objectId));
     }
 
     @MessageMapping(value = "/active-users")
