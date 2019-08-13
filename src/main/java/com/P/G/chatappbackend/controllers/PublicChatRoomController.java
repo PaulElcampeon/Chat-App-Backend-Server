@@ -51,11 +51,11 @@ public class PublicChatRoomController {
         return chatroomServicePublic.getNumberOfCurrentUsers();
     }
 
-//    @RequestMapping(value = "/message/previous/10", method = RequestMethod.POST)
-//    @ResponseBody
-//    public List<Message> getPreviousMessages(@RequestBody PublicMoreMessagesRequest publicMoreMessagesRequest) {
-//        return chatroomServicePublic.getPrevious10Messages(publicMoreMessagesRequest);
-//    }
+    @RequestMapping(value = "/message/previous/10", method = RequestMethod.POST)
+    @ResponseBody
+    public List<Message> getPreviousMessages(@RequestBody PublicMoreMessagesRequest publicMoreMessagesRequest) {
+        return chatroomServicePublic.getPrevious10Messages(publicMoreMessagesRequest);
+    }
 
     @MessageMapping(value = "/send")
     @SendTo(value = "/topic/public-room")
@@ -68,5 +68,12 @@ public class PublicChatRoomController {
     public void getPreviousMessages(@RequestBody PublicMoreMessagesRequest publicMoreMessagesRequest, @Header("simpSessionId") String sessionId) {
         logger.log(Level.INFO, String.format("User with session id:%s made a request for more previous messages", sessionId));
         simpMessagingTemplate.convertAndSend("/queue/" + sessionId, chatroomServicePublic.getPrevious10Messages(publicMoreMessagesRequest));
+    }
+
+    @MessageMapping(value = "/active-users")
+    @SendTo(value = "/topic/public-room/active-users")
+    public List<String> getActiveUsers(@Header("simpSessionId") String sessionId) {
+        logger.log(Level.INFO, String.format("Client with sessionId:%s has just made a request for list of active users", sessionId));
+        return chatroomServicePublic.getListOfCurrentUsers();
     }
 }
