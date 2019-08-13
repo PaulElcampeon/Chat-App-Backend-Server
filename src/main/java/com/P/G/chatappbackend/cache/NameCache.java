@@ -31,7 +31,7 @@ public class NameCache {
             synchronized (this) {
                 if (names.get(key).equals("")) {
                     names.put(key, sessionId);
-                    logger.log(Level.INFO, String.format("Current status of name cache: %s", getNames()));
+                    logger.log(Level.INFO, String.format("Current status of name cache%nAvailable names: %d ", getNumberOfFreeNames()));
                     return key;
                 }
             }
@@ -46,7 +46,7 @@ public class NameCache {
                 logger.log(Level.INFO, String.format("The name %s has just been freed up by user with session id:%s", key, sessionId));
             }
         });
-        logger.log(Level.INFO, String.format("Current status of name cache: %s", getNames()));
+        logger.log(Level.INFO, String.format("Current status of name cache%nAvailable names: %d ", getNumberOfFreeNames()));
     }
 
     public List<String> getListOfActiveUsers() {
@@ -56,4 +56,9 @@ public class NameCache {
     public int getNumberOfActiveUsers() {
         return getListOfActiveUsers().size();
     }
+
+    public long getNumberOfFreeNames() {
+        return names.values().stream().filter(name -> name.equals("")).count();
+    }
+
 }

@@ -51,6 +51,14 @@ public class NameCacheTest {
         assertEquals(Arrays.asList(name1, name2, name3), result);
     }
 
+    @Test
+    public void getNumberOfFreeNames_Test() {
+        nameCache.getNameForClient("test1");
+        nameCache.getNameForClient("test2");
+        nameCache.getNameForClient("test3");
+        long result = nameCache.getNumberOfFreeNames();
+        assertEquals(122, result);
+    }
     @After
     public void tearDown() {
         nameCache.getNames().clear();
