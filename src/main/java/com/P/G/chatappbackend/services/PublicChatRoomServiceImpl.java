@@ -2,9 +2,9 @@ package com.P.G.chatappbackend.services;
 
 import com.P.G.chatappbackend.cache.NameCache;
 import com.P.G.chatappbackend.models.Message;
-import com.P.G.chatappbackend.dto.PublicMoreMessagesRequest;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.util.NameCreator;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -54,8 +54,8 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     }
 
     @Override
-    public List<Message> getPrevious10Messages(PublicMoreMessagesRequest publicMoreMessagesRequest) {
-        return messageRepository.findFirst10By_idLessThan(publicMoreMessagesRequest.getMessageId());
+    public List<Message> getPrevious10Messages(ObjectId objectId) {
+        return messageRepository.findFirst10By_idLessThan(objectId);
     }
 
     @Override

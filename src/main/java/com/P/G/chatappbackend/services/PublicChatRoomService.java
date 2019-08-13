@@ -1,7 +1,7 @@
 package com.P.G.chatappbackend.services;
 
 import com.P.G.chatappbackend.models.Message;
-import com.P.G.chatappbackend.dto.PublicMoreMessagesRequest;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public interface PublicChatRoomService {
 
     void freeUpName(String name);
 
-    List<Message> getPrevious10Messages(PublicMoreMessagesRequest publicMoreMessagesRequest);
+    List<Message> getPrevious10Messages(ObjectId objectId);
 
     List<Message> getFirst10Messages();
 
