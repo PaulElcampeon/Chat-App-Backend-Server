@@ -3,7 +3,6 @@ package com.P.G.chatappbackend.controllers;
 import com.P.G.chatappbackend.ChatAppBackendApplication;
 import com.P.G.chatappbackend.cache.NameCache;
 import com.P.G.chatappbackend.config.WebSocketConfig;
-import com.P.G.chatappbackend.dto.PublicMoreMessagesRequest;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import org.junit.Before;
@@ -136,7 +135,7 @@ public class PublicChatRoomControllerTest {
 
         messageRepository.saveAll(Arrays.asList(message1, message2, message3, message4));
         stompSession.subscribe("/queue/"+completableFuture3.get(10, TimeUnit.SECONDS), new getPreviousMessagesFrameHandler());
-        stompSession.send("/app/previous-messages", new PublicMoreMessagesRequest(message3.get_id()));
+        stompSession.send("/app/previous-messages", message3.get_id());
         List<Message> messages = completableFuture2.get(10, TimeUnit.SECONDS);
         assertEquals(messageRepository.findFirst10By_idLessThan(message3.get_id()).size(), messages.size());
         stompSession.disconnect();
