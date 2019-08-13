@@ -26,4 +26,6 @@ public interface PublicChatRoomService {
     void updateChatroomWithCurrentUsers();
 
     void deleteAllMessages();
+
+    Message test();
 }

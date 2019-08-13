@@ -75,6 +75,10 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
         simpMessagingTemplate.convertAndSend("/topic/public-room/current-users", getListOfCurrentUsers());
     }
 
+    public Message test() {
+        return messageRepository.findAll().get(10);
+    }
+
     @Override
     public void deleteAllMessages() {
         messageRepository.deleteAll();

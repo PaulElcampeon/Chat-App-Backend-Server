@@ -60,6 +60,12 @@ public class PublicChatRoomController {
         return chatroomServicePublic.getNumberOfCurrentUsers();
     }
 
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    @ResponseBody
+    public Message test() {
+        return chatroomServicePublic.test();
+    }
+
     @RequestMapping(value = "/message/previous/10", method = RequestMethod.POST)
     @ResponseBody
     public List<Message> getPreviousMessages(@RequestBody MessageId messageId) {
