@@ -12,6 +12,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +35,12 @@ public class PublicChatRoomController {
     String homePage() {
         return "Im awake now";
     }
+
+    @RequestMapping(value = "/messages/delete", method = RequestMethod.DELETE)
+    public void deleteMessages() {
+        chatroomServicePublic.deleteAllMessages();
+    }
+
 
     @RequestMapping(value = "/messages/latest/10", method = RequestMethod.GET)
     @ResponseBody

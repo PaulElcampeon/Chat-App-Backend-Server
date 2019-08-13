@@ -24,4 +24,6 @@ public interface PublicChatRoomService {
     int getNumberOfCurrentUsers();
 
     void updateChatroomWithCurrentUsers();
+
+    void deleteAllMessages();
 }
