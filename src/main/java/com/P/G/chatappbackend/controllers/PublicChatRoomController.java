@@ -65,6 +65,7 @@ public class PublicChatRoomController {
     public List<Message> getPreviousMessages(@RequestBody MessageId messageId) {
         logger.log(Level.INFO, String.format("Message id is %s", messageId));
         ObjectId objectId = new ObjectId(messageId.getTimestamp(), messageId.getMachineIdentifier(), messageId.getProcessIdentifier(), messageId.getCounter());
+        logger.log(Level.INFO, String.format("Object id is %s", objectId));
         return chatroomServicePublic.getPrevious10Messages(objectId);
     }
 
