@@ -3,7 +3,6 @@ package com.P.G.chatappbackend.controllers;
 import com.P.G.chatappbackend.dto.NameRequest;
 import com.P.G.chatappbackend.dto.PrivateMoreMessageRequest;
 import com.P.G.chatappbackend.models.Message;
-import com.P.G.chatappbackend.dto.PublicMoreMessagesRequest;
 import com.P.G.chatappbackend.services.PrivateChatRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.*;
