@@ -63,6 +63,7 @@ public class PublicChatRoomController {
     @RequestMapping(value = "/message/previous/10", method = RequestMethod.POST)
     @ResponseBody
     public List<Message> getPreviousMessages(@RequestBody MessageId messageId) {
+        logger.log(Level.INFO, String.format("Message id is %s", messageId));
         ObjectId objectId = new ObjectId(messageId.getTimestamp(), messageId.getMachineIdentifier(), messageId.getProcessIdentifier(), messageId.getCounter());
         return chatroomServicePublic.getPrevious10Messages(objectId);
     }
