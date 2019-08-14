@@ -1,22 +1,29 @@
 package com.P.G.chatappbackend.services;
 
 import com.P.G.chatappbackend.cache.NameCache;
+import com.P.G.chatappbackend.dto.ActiveUsersResponse;
+import com.P.G.chatappbackend.dto.FirstMessagesResponse;
+import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.util.NameCreator;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.List;
 
 @Service
 public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     @Autowired
     private MessageRepository messageRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private NameCache nameCache;
@@ -44,8 +51,8 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     }
 
     @Override
-    public List<String> getListOfCurrentUsers() {
-        return nameCache.getListOfActiveUsers();
+    public ActiveUsersResponse getListOfCurrentUsers() {
+        return new ActiveUsersResponse(nameCache.getListOfActiveUsers());
     }
 
     @Override
@@ -54,15 +61,21 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     }
 
     @Override
-    public List<Message> getPrevious10Messages(ObjectId objectId) {
-        return messageRepository.findFirst10By_idLessThan(objectId);
+    public PreviousMessagesResponse getNPreviousMessages(ObjectId objectId, int numberOfMessages) {
+        Query query = new Query();
+        query.addCriteria(Criteria
+                .where("_id").lt(objectId));
+        query.limit(numberOfMessages);
+        query.with(new Sort(Sort.Direction.DESC, "_id"));
+        return new PreviousMessagesResponse(mongoTemplate.find(query, Message.class));
     }
 
     @Override
-    public List<Message> getFirst10Messages() {
-        List<Message> messages = messageRepository.findFirst10ByOrderByTimeSentDesc();
-        Collections.reverse(messages);
-        return messages;
+    public FirstMessagesResponse getFirstNMessages(int numberOfMessages) {
+        Query query = new Query();
+        query.limit(numberOfMessages);
+        query.with(new Sort(Sort.Direction.DESC, "_id"));
+        return new FirstMessagesResponse(mongoTemplate.find(query, Message.class));
     }
 
     @Override
@@ -75,8 +88,8 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
         simpMessagingTemplate.convertAndSend("/topic/public-room/current-users", getListOfCurrentUsers());
     }
 
-    public Message test() {
-        return messageRepository.findAll().get(10);
+    public Message test(int messagePos) {
+        return messageRepository.findAll().get(messagePos);
     }
 
     @Override

@@ -1,9 +1,10 @@
 package com.P.G.chatappbackend.services;
 
+import com.P.G.chatappbackend.dto.ActiveUsersResponse;
+import com.P.G.chatappbackend.dto.FirstMessagesResponse;
+import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
 import com.P.G.chatappbackend.models.Message;
 import org.bson.types.ObjectId;
-
-import java.util.List;
 
 public interface PublicChatRoomService {
 
@@ -13,13 +14,13 @@ public interface PublicChatRoomService {
 
     Message processMessage(Message message);
 
-    List<String> getListOfCurrentUsers();
+    ActiveUsersResponse getListOfCurrentUsers();
 
     void freeUpName(String name);
 
-    List<Message> getPrevious10Messages(ObjectId objectId);
+    PreviousMessagesResponse getNPreviousMessages(ObjectId objectId, int numberOfMessages);
 
-    List<Message> getFirst10Messages();
+    FirstMessagesResponse getFirstNMessages(int numberOfMessages);
 
     int getNumberOfCurrentUsers();
 
@@ -27,5 +28,5 @@ public interface PublicChatRoomService {
 
     void deleteAllMessages();
 
-    Message test();
+    Message test(int messPos);
 }
