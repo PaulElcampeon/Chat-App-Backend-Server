@@ -1,14 +1,10 @@
 package com.P.G.chatappbackend.controllers;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.reflect.Type;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
 import com.P.G.chatappbackend.ChatAppBackendApplication;
+import com.P.G.chatappbackend.cache.NameCache;
+import com.P.G.chatappbackend.config.WebSocketConfig;
+import com.P.G.chatappbackend.models.Message;
+import com.P.G.chatappbackend.repositiories.MessageRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,10 +20,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
-import com.P.G.chatappbackend.cache.NameCache;
-import com.P.G.chatappbackend.config.WebSocketConfig;
-import com.P.G.chatappbackend.models.Message;
-import com.P.G.chatappbackend.repositiories.MessageRepository;
+import java.lang.reflect.Type;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {ChatAppBackendApplication.class, WebSocketConfig.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -38,7 +37,6 @@ public class PublicChatRoomControllerIT {
 
     @Autowired
     private MessageRepository messageRepository;
-
 
     @LocalServerPort
     private int port;
@@ -54,12 +52,18 @@ public class PublicChatRoomControllerIT {
     public void checkClientHasBeenAssigned_Test() throws InterruptedException, ExecutionException, TimeoutException {
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
         StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
         }).get(1, SECONDS);
+
         stompSession.subscribe("/topic/public-room", new sendMessageFrameHandler());
+
         stompSession.send("/app/send", new Message("Dave", "Hello"));
+
         String sessionId = completableFuture.get(10, SECONDS);
+
         assertTrue(nameCache.getNames().containsValue(sessionId));
+
         stompSession.disconnect();
     }
 

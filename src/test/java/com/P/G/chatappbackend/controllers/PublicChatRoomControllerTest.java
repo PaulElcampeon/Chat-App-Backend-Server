@@ -3,8 +3,12 @@ package com.P.G.chatappbackend.controllers;
 import com.P.G.chatappbackend.ChatAppBackendApplication;
 import com.P.G.chatappbackend.cache.NameCache;
 import com.P.G.chatappbackend.config.WebSocketConfig;
+import com.P.G.chatappbackend.dto.ActiveUsersResponse;
+import com.P.G.chatappbackend.dto.FirstMessagesResponse;
+import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
+import com.P.G.chatappbackend.services.PublicChatRoomService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,13 +28,11 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -46,34 +48,59 @@ public class PublicChatRoomControllerTest {
     private MessageRepository messageRepository;
 
     @Autowired
+    private PublicChatRoomService publicChatRoomService;
+
+    @Autowired
     private TestRestTemplate restTemplate;
 
     @Autowired
     private NameCache nameCache;
 
     private CompletableFuture<Message> completableFuture1 = new CompletableFuture<>();
-    private CompletableFuture<List<Message>> completableFuture2 = new CompletableFuture<>();
+    private CompletableFuture<PreviousMessagesResponse> completableFuture2 = new CompletableFuture<>();
     private CompletableFuture<String> completableFuture3 = new CompletableFuture<>();
 
     @Before
     public void tearDown() {
         messageRepository.deleteAll();
+        nameCache.freeUpAllNames();
     }
 
     @Test
     public void homePage_Test() {
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:"+port, String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:" + port, String.class);
+
         assertEquals("Im awake now", response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
 
     @Test
-    public void getFirst10Messages_Test() {
-        messageRepository.insert(new Message("Lathy", "mello"));
-        Stream.generate(() -> new Message("Cathy", "hello")).limit(23).forEach(message -> messageRepository.insert(message));
-        ResponseEntity<List> response = restTemplate.getForEntity("http://localhost:"+port+"/messages/latest/10", List.class);
-        List<LinkedHashMap<String, Object>> last10Messages = response.getBody();
-        assertEquals("Lathy", last10Messages.get(9).get("sender"));
+    public void getFirstNMessages_Test() {
+        Message message1 = new Message("Cathy", "hello");
+        Message message2 = new Message("Lathy", "mello");
+        Message message3 = new Message("Ian", "mello");
+
+        messageRepository.insert(Arrays.asList(message1, message2, message3));
+
+        ResponseEntity<FirstMessagesResponse> response = restTemplate.getForEntity("http://localhost:" + port + "/messages/latest/2", FirstMessagesResponse.class);
+
+        assertEquals(Arrays.asList(message3, message2), response.getBody().getMessages());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void getPreviousNMessages_HttpPost_Test() {
+        Message message1 = new Message("Cathy", "hello");
+        Message message2 = new Message("Lathy", "mello");
+        Message message3 = new Message("Ian", "kinda");
+        Message message4 = new Message("Dav", "pluck");
+        Message message5 = new Message("Fred", "Shut it");
+
+        messageRepository.insert(Arrays.asList(message1, message2, message3, message4, message5));
+
+        ResponseEntity<PreviousMessagesResponse> response = restTemplate.postForEntity("http://localhost:" + port + "/message/previous/3", message5.get_id(), PreviousMessagesResponse.class);
+
+        assertEquals(Arrays.asList(message4, message3, message2), response.getBody().getMessages());
         assertEquals(200, response.getStatusCodeValue());
     }
 
@@ -84,46 +111,51 @@ public class PublicChatRoomControllerTest {
         String name1 = nameCache.getNameForClient(session1);
         String name2 = nameCache.getNameForClient(session2);
 
-        ResponseEntity<List> response = restTemplate.getForEntity("http://localhost:"+port+"/active-users", List.class);
-        List<String> activeUsers = response.getBody();
-        assertEquals(Arrays.asList(name1,name2), activeUsers);
+        ResponseEntity<ActiveUsersResponse> response = restTemplate.getForEntity("http://localhost:" + port + "/active-users", ActiveUsersResponse.class);
+        List<String> activeUsers = response.getBody().getUsers();
 
-        nameCache.freeUpName(session1);
-        nameCache.freeUpName(session2);
+        assertEquals(Arrays.asList(name1, name2), activeUsers);
     }
 
     @Test
     public void getNumberOfActiveUsers_Test() {
         String session1 = "session1";
         String session2 = "session2";
+
         nameCache.getNameForClient(session1);
         nameCache.getNameForClient(session2);
 
-        ResponseEntity<Integer> response = restTemplate.getForEntity("http://localhost:"+port+"/active-users/count", Integer.class);
+        ResponseEntity<Integer> response = restTemplate.getForEntity("http://localhost:" + port + "/active-users/count", Integer.class);
         int count = response.getBody();
-        assertEquals(2, count);
 
-        nameCache.freeUpName(session1);
-        nameCache.freeUpName(session2);
+        assertEquals(2, count);
     }
 
     @Test
     public void sendMessage_Test() throws InterruptedException, ExecutionException, TimeoutException {
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-        StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {}).get(1, TimeUnit.SECONDS);
+
+        StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
+        }).get(1, TimeUnit.SECONDS);
+
         stompSession.subscribe("/topic/public-room", new sendMessageFrameHandler());
+
         stompSession.send("/app/send", new Message("Dave", "Hello"));
+
         Message message = completableFuture1.get(10, TimeUnit.SECONDS);
+
         assertNotNull(message);
+
         stompSession.disconnect();
     }
 
     @Test
-    public void getPreviousMessages_Test() throws InterruptedException, ExecutionException, TimeoutException {
+    public void getPreviousNMessages_Websocket_Test() throws InterruptedException, ExecutionException, TimeoutException {
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-        StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {}).get(1, TimeUnit.SECONDS);
+        StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
+        }).get(1, TimeUnit.SECONDS);
 
         stompSession.subscribe("/topic/public-room", new sendMessageFrameHandler());
         stompSession.send("/app/send", new Message("Dave", "Hello"));
@@ -134,10 +166,16 @@ public class PublicChatRoomControllerTest {
         Message message4 = new Message("Mable", "Podi");
 
         messageRepository.saveAll(Arrays.asList(message1, message2, message3, message4));
-        stompSession.subscribe("/queue/"+completableFuture3.get(10, TimeUnit.SECONDS), new getPreviousMessagesFrameHandler());
-        stompSession.send("/app/previous-messages", message3.get_id());
-        List<Message> messages = completableFuture2.get(10, TimeUnit.SECONDS);
-        assertEquals(messageRepository.findFirst10By_idLessThan(message3.get_id()).size(), messages.size());
+
+        stompSession.subscribe("/queue/" + completableFuture3.get(10, TimeUnit.SECONDS), new getPreviousMessagesFrameHandler());
+
+        stompSession.send("/app/previous-messages/2", message4.get_id());
+
+        PreviousMessagesResponse results = completableFuture2.get(10, TimeUnit.SECONDS);
+
+        assertEquals(2, results.getMessages().size());
+        assertEquals(Arrays.asList(message3, message2), results.getMessages());
+
         stompSession.disconnect();
     }
 
@@ -157,12 +195,12 @@ public class PublicChatRoomControllerTest {
     private class getPreviousMessagesFrameHandler implements StompFrameHandler {
         @Override
         public Type getPayloadType(StompHeaders stompHeaders) {
-            return List.class;
+            return PreviousMessagesResponse.class;
         }
 
         @Override
         public void handleFrame(StompHeaders stompHeaders, Object o) {
-            completableFuture2.complete((List<Message>) o);
+            completableFuture2.complete((PreviousMessagesResponse) o);
         }
     }
 }
