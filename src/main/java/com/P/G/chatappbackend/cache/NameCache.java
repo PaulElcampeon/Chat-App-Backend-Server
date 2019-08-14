@@ -53,6 +53,16 @@ public class NameCache {
         return names.keySet().stream().filter(key -> names.get(key).length() > 1).collect(Collectors.toList());
     }
 
+    public void freeUpAllNames() {
+        names.forEach((key, value) -> {
+            names.put(key, "");
+        });
+    }
+
+    public void clear() {
+        if (names != null) { names.clear();}
+    }
+
     public int getNumberOfActiveUsers() {
         return getListOfActiveUsers().size();
     }
