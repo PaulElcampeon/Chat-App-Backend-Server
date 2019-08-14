@@ -1,7 +1,7 @@
 package com.P.G.chatappbackend.services;
 
-import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.dto.PrivateMoreMessageRequest;
+import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.models.Room;
 
 import java.util.List;
