@@ -52,7 +52,6 @@ public class PrivateChatRoomControllerTest {
 
     private CompletableFuture<Message> completableFutureMessage = new CompletableFuture<>();
 
-
     @Before
     public void tearDown() {
         privateChatRoomRepository.deleteAll();
@@ -61,7 +60,9 @@ public class PrivateChatRoomControllerTest {
     @Test
     public void getPrivateRoomId_Test() {
         ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://localhost:" + port + "/create/private-room", String.class);
+
         String roomId = responseEntity.getBody();
+
         assertTrue(privateChatRoomRepository.existsById(roomId));
         assertEquals(200, responseEntity.getStatusCodeValue());
     }
@@ -69,8 +70,10 @@ public class PrivateChatRoomControllerTest {
     @Test
     public void getName_Test() throws InterruptedException, ExecutionException, TimeoutException {
         String roomId = privateChatRoomService.createRoom();
+
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
         StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
             @Override
             public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
@@ -91,7 +94,9 @@ public class PrivateChatRoomControllerTest {
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
+
             assertNotNull(name);
+
             stompSession.disconnect();
         });
     }
@@ -99,8 +104,10 @@ public class PrivateChatRoomControllerTest {
     @Test
     public void processMessage_Test() throws InterruptedException, ExecutionException, TimeoutException {
         String roomId = privateChatRoomService.createRoom();
+
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
         StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
             @Override
             public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
@@ -110,14 +117,16 @@ public class PrivateChatRoomControllerTest {
 
         completableFutureSessionId.thenRun(() -> {
             stompSession.subscribe(String.format("/topic/%s", roomId), new SendMessageFrameHandler());
-            stompSession.send("/app/send/"+roomId, new Message("Kimberly","red"));
+            stompSession.send("/app/send/" + roomId, new Message("Kimberly", "red"));
             Message message = null;
             try {
                 message = completableFutureMessage.get(10, SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
+
             assertNotNull(message);
+
             stompSession.disconnect();
         });
     }
@@ -147,5 +156,4 @@ public class PrivateChatRoomControllerTest {
             completableFutureMessage.complete((Message) o);
         }
     }
-
 }
