@@ -28,17 +28,26 @@ public class NameCacheTest {
         nameCache.setNameCache(nameCreator.createNamesConcurrentHashMap());
     }
 
+    @After
+    public void tearDown() {
+        nameCache.clear();
+    }
+
     @Test
     public void getNameForClient_Test() {
         String name = nameCache.getNameForClient("test123");
+
         assertEquals("Value should be test123","test123", nameCache.getNames().get(name));
     }
 
     @Test
     public void freeUpName_Test() {
         String name = nameCache.getNameForClient("test123");
+
         assertEquals("Value should be test123","test123", nameCache.getNames().get(name));
+
         nameCache.freeUpName("test123");
+
         assertEquals("Value should be empty", "", nameCache.getNames().get(name));
     }
 
@@ -47,7 +56,9 @@ public class NameCacheTest {
         String name1 = nameCache.getNameForClient("test1");
         String name2 = nameCache.getNameForClient("test2");
         String name3 = nameCache.getNameForClient("test3");
+
         List<String> result = nameCache.getListOfActiveUsers();
+
         assertEquals(Arrays.asList(name1, name2, name3), result);
     }
 
@@ -56,11 +67,9 @@ public class NameCacheTest {
         nameCache.getNameForClient("test1");
         nameCache.getNameForClient("test2");
         nameCache.getNameForClient("test3");
+
         long result = nameCache.getNumberOfFreeNames();
+
         assertEquals(122, result);
-    }
-    @After
-    public void tearDown() {
-        nameCache.getNames().clear();
     }
 }
