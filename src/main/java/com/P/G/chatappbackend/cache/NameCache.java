@@ -1,14 +1,17 @@
 package com.P.G.chatappbackend.cache;
 
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -22,19 +25,31 @@ public class NameCache {
         return names;
     }
 
+    private List<String> listOfNames = new ArrayList<>();
+
+    private int size = 0;
+
     public void setNameCache(ConcurrentHashMap<String, String> concurrentHashMap) {
         this.names = concurrentHashMap;
+        this.listOfNames = Collections.list(names.keys());
+        this.size = names.size();
     }
 
     public String getNameForClient(String sessionId) {
-        for (String key : names.keySet()) {
-            synchronized (this) {
-                if (names.get(key).equals("")) {
-                    names.put(key, sessionId);
-                    logger.log(Level.INFO, String.format("Current status of name cache%nAvailable names: %d ", getNumberOfFreeNames()));
-                    return key;
+        synchronized (this) {
+                int counter = 0;
+                while (true) {
+                    String name = listOfNames.get(ThreadLocalRandom.current().nextInt(this.size));
+                    if (names.get(name).equals("")) {
+                        names.put(name, sessionId);
+                        logger.log(Level.INFO, String.format("Current status of name cache%nAvailable names: %d ", getNumberOfFreeNames()));
+                        return name;
+                    }
+                    counter++;
+                    if (counter == this.size) {
+                        break;
+                    }
                 }
-            }
         }
         return null;
     }
