@@ -61,15 +61,15 @@ public class PublicChatRoomController {
         return chatroomServicePublic.getNumberOfCurrentUsers();
     }
 
-    @RequestMapping(value = "/test/{messagePos}", method = RequestMethod.GET)
+    @RequestMapping(value = "/test/message/get/{messagePos}", method = RequestMethod.GET)
     @ResponseBody
-    public Message test(@PathVariable("messagePos") int messagePos) {
+    public Message getMessageTest(@PathVariable("messagePos") int messagePos) {
         return chatroomServicePublic.test(messagePos);
     }
 
-    @RequestMapping(value = "/test/send", method = RequestMethod.POST)
+    @RequestMapping(value = "/test/message/send", method = RequestMethod.POST)
     @ResponseBody
-    public void testSend(@RequestBody Message message) {
+    public void createMessageTest(@RequestBody Message message) {
         chatroomServicePublic.processMessage(message);
     }
 
