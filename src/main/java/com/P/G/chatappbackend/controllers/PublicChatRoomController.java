@@ -67,6 +67,13 @@ public class PublicChatRoomController {
         return chatroomServicePublic.test(messagePos);
     }
 
+    @RequestMapping(value = "/test/send", method = RequestMethod.POST)
+    @ResponseBody
+    public void testSend(@RequestBody Message message) {
+        chatroomServicePublic.processMessage(message);
+    }
+
+
     @RequestMapping(value = "/message/previous/{numberOfMessages}", method = RequestMethod.POST)
     @ResponseBody
     public PreviousMessagesResponse getPreviousMessages(@PathVariable("numberOfMessages") int numberOfMessages, @RequestBody MessageId messageId) {
