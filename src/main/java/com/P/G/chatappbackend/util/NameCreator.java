@@ -12,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class NameCreator {
 
-    private final String[] adjectives = {"Funny", "Slow", "Dark", "Pasty", "Spotty"};
-    private final String[] nouns = {"Cat", "Dog", "Car", "Puppy", "Toilet"};
-    private final String[] verbs = {"Towing", "Running", "Swimming", "Farting", "Vomiting"};
+    private final String[] adjectives = {"Funny", "Slow", "Dark", "Pasty", "Spotty", "Limping"};
+    private final String[] nouns = {"Cat", "Dog", "Car", "Puppy", "Toilet", "Raccoon"};
+    private final String[] verbs = {"Towing", "Running", "Swimming", "Farting", "Vomiting", "Fapping"};
     private final StringBuilder stringBuilder = new StringBuilder();
 
     public ConcurrentHashMap<String, String> createNamesConcurrentHashMap() {
