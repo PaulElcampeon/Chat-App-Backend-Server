@@ -85,7 +85,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     @Override
     public void updateChatroomWithCurrentUsers() {
-        simpMessagingTemplate.convertAndSend("/topic/public-room/current-users", getListOfCurrentUsers());
+        simpMessagingTemplate.convertAndSend("/topic/public-room/active-users", getListOfCurrentUsers());
     }
 
     public Message test(int messagePos) {
