@@ -47,7 +47,7 @@ public class PublicChatRoomServiceTest {
 
     @Test
     public void initializeNameCache_Test() {
-        assertEquals("Number of names should be 125", 125, nameCache.getNames().mappingCount());
+        assertEquals("Number of names should be 216", 216, nameCache.getNames().mappingCount());
 
         verify(nameCreator, times(1)).createNamesConcurrentHashMap();
         verify(nameCache, times(1)).setNameCache(Mockito.any());
