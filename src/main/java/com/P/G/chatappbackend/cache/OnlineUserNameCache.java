@@ -28,6 +28,7 @@ public class OnlineUserNameCache {
                 Level.INFO,
                 String.format("Client with sessionId %s just connected to the chat room nad has the name %s",
                         sessionId, username));
+        logNumberOfUsersOnline();
     }
 
     public void removeUserFromCache(String sessionId) {
@@ -35,10 +36,10 @@ public class OnlineUserNameCache {
         logger.log(
                 Level.INFO,
                 String.format("%s just disconnected from the chat room", sessionId));
+        logNumberOfUsersOnline();
     }
 
     public OnlineUsers getOnlineUsers() {
-        System.out.println(names.values());
         return new OnlineUsers(new ArrayList<>(names.values()));
     }
 
@@ -46,4 +47,9 @@ public class OnlineUserNameCache {
         return this.names;
     }
 
+    public void logNumberOfUsersOnline() {
+        logger.log(
+                Level.INFO,
+                String.format("%d users currently online", getOnlineUsers().getUsers().size()));
+    }
 }
