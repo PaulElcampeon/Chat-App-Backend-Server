@@ -6,13 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class ActiveUsersResponse {
+public class OnlineUsers {
 
     private List<String> users = new ArrayList<>();
 
-    public ActiveUsersResponse() {}
+    public OnlineUsers() {
+    }
 
-    public ActiveUsersResponse(List<String> users) {
+    public OnlineUsers(List<String> users) {
         this.users = users;
     }
 }

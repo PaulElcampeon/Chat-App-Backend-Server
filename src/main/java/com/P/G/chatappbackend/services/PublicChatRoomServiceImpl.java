@@ -1,8 +1,9 @@
 package com.P.G.chatappbackend.services;
 
-import com.P.G.chatappbackend.cache.NameCache;
-import com.P.G.chatappbackend.dto.ActiveUsersResponse;
+import com.P.G.chatappbackend.cache.CreateNamesCache;
+import com.P.G.chatappbackend.cache.OnlineUserNameCache;
 import com.P.G.chatappbackend.dto.FirstMessagesResponse;
+import com.P.G.chatappbackend.dto.OnlineUsers;
 import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
@@ -26,7 +27,10 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     private MongoTemplate mongoTemplate;
 
     @Autowired
-    private NameCache nameCache;
+    private CreateNamesCache createdNamesCache;
+
+    @Autowired
+    private OnlineUserNameCache onlineUserNameCache;
 
     @Autowired
     private NameCreator nameCreator;
@@ -36,12 +40,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     @Override
     public void initializeNameCache() {
-        nameCache.setNameCache(nameCreator.createNamesConcurrentHashMap());
-    }
-
-    @Override
-    public String assignUserRandomName(String sessionId) {
-        return nameCache.getNameForClient(sessionId);
+        createdNamesCache.setNameCache(nameCreator.createMapOfNamesWithAvailability());
     }
 
     @Override
@@ -51,13 +50,13 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     }
 
     @Override
-    public ActiveUsersResponse getListOfCurrentUsers() {
-        return new ActiveUsersResponse(nameCache.getListOfActiveUsers());
+    public OnlineUsers getListOfCurrentUsers() {
+        return onlineUserNameCache.getOnlineUsers();
     }
 
     @Override
-    public void freeUpName(String name) {
-        nameCache.freeUpName(name);
+    public void removeClientFromOnlineUsers(String sessionId) {
+        onlineUserNameCache.removeUserFromCache(sessionId);
     }
 
     @Override
@@ -80,16 +79,28 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     @Override
     public int getNumberOfCurrentUsers() {
-        return nameCache.getNumberOfActiveUsers();
+        return onlineUserNameCache.getOnlineUsers().getUsers().size();
     }
 
     @Override
-    public void updateChatroomWithCurrentUsers() {
+    public void updateChatRoomWithCurrentUsers() {
         simpMessagingTemplate.convertAndSend("/topic/public-room/active-users", getListOfCurrentUsers());
     }
 
     public Message test(int messagePos) {
         return messageRepository.findAll().get(messagePos);
+    }
+
+    @Override
+    public void addClientToOnlineUsers(String name, String sessionId) {
+        onlineUserNameCache.addNewOnlineUser(name, sessionId);
+    }
+
+    @Override
+    public void giveClientName(String sessionId) {
+        String name = createdNamesCache.getNameForClient();
+        onlineUserNameCache.addNewOnlineUser(name, sessionId);
+        simpMessagingTemplate.convertAndSend(String.format("/queue/%s", sessionId), name);
     }
 
     @Override

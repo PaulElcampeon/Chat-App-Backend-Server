@@ -1,7 +1,8 @@
 package com.P.G.chatappbackend.services;
 
-import com.P.G.chatappbackend.cache.NameCache;
-import com.P.G.chatappbackend.dto.ActiveUsersResponse;
+import com.P.G.chatappbackend.cache.CreateNamesCache;
+import com.P.G.chatappbackend.cache.OnlineUserNameCache;
+import com.P.G.chatappbackend.dto.OnlineUsers;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.util.NameCreator;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -24,10 +26,16 @@ import static org.mockito.Mockito.verify;
 public class PublicChatRoomServiceTest {
 
     @Spy
-    private NameCache nameCache;
+    private CreateNamesCache nameCache;
 
     @Spy
     private NameCreator nameCreator;
+
+    @Spy
+    private OnlineUserNameCache onlineUserNameCache;
+
+    @Mock
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Mock
     private MessageRepository messageRepository;
@@ -43,23 +51,15 @@ public class PublicChatRoomServiceTest {
     @After
     public void tearDown() {
         nameCache.clear();
+        onlineUserNameCache.clearNames();
     }
 
     @Test
     public void initializeNameCache_Test() {
-        assertEquals("Number of names should be 216", 216, nameCache.getNames().mappingCount());
+        assertEquals("Number of names should be 216", 216, nameCache.getNames().size());
 
-        verify(nameCreator, times(1)).createNamesConcurrentHashMap();
+        verify(nameCreator, times(1)).createMapOfNamesWithAvailability();
         verify(nameCache, times(1)).setNameCache(Mockito.any());
-    }
-
-    @Test
-    public void assignUserRandomName_Test() {
-        String result = chatRoomService.assignUserRandomName("test123");
-
-        assertNotNull("name should not be null", result);
-
-        verify(nameCache, times(1)).getNameForClient(Mockito.anyString());
     }
 
     @Test
@@ -70,20 +70,20 @@ public class PublicChatRoomServiceTest {
 
     @Test
     public void getListOfCurrentUsers_Test() {
-        chatRoomService.assignUserRandomName("test1");
-        chatRoomService.assignUserRandomName("test2");
-        chatRoomService.assignUserRandomName("test3");
+        chatRoomService.giveClientName("test1");
+        chatRoomService.giveClientName("test2");
+        chatRoomService.giveClientName("test3");
 
-        ActiveUsersResponse names = chatRoomService.getListOfCurrentUsers();
+        OnlineUsers names = chatRoomService.getListOfCurrentUsers();
 
         assertEquals("Should be 3 names", 3, names.getUsers().size());
     }
 
     @Test
     public void freeUpName_Test() {
-        chatRoomService.assignUserRandomName("test1");
-        chatRoomService.freeUpName("test1");
+        chatRoomService.giveClientName("test1");
+        chatRoomService.removeClientFromOnlineUsers("test1");
 
-        verify(nameCache, times(1)).freeUpName("test1");
+        verify(onlineUserNameCache, times(1)).removeUserFromCache("test1");
     }
 }

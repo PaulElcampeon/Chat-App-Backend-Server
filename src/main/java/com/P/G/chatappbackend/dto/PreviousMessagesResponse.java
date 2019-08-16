@@ -11,7 +11,8 @@ public class PreviousMessagesResponse {
 
     private List<Message> messages = new ArrayList<>();
 
-    public PreviousMessagesResponse() {}
+    public PreviousMessagesResponse() {
+    }
 
     public PreviousMessagesResponse(List<Message> messages) {
         this.messages = messages;

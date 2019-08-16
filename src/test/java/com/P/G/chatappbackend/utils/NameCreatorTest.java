@@ -1,6 +1,6 @@
 package com.P.G.chatappbackend.utils;
 
-import com.P.G.chatappbackend.cache.NameCache;
+import com.P.G.chatappbackend.cache.CreateNamesCache;
 import com.P.G.chatappbackend.util.NameCreator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,13 +14,18 @@ import static org.junit.Assert.assertEquals;
 public class NameCreatorTest {
 
     @Spy
-    private NameCache nameCache;
+    private CreateNamesCache nameCache;
 
     @InjectMocks
     private NameCreator nameCreator;
 
     @Test
     public void nameCreator_Test() {
-        assertEquals("Number of distinct names created should be 216", 216, nameCreator.createNamesConcurrentHashMap().mappingCount());
+        assertEquals("Number of distinct names created should be 216", 216, nameCreator.createMapOfNamesWithAvailability().size());
     }
+
+//    @Test
+//    public void createNamesList_Test() {
+//        nameCreator.createNamesList();
+//    }
 }

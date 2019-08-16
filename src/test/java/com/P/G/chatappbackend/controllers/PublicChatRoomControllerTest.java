@@ -1,14 +1,16 @@
 package com.P.G.chatappbackend.controllers;
 
 import com.P.G.chatappbackend.ChatAppBackendApplication;
-import com.P.G.chatappbackend.cache.NameCache;
+import com.P.G.chatappbackend.cache.CreateNamesCache;
+import com.P.G.chatappbackend.cache.OnlineUserNameCache;
 import com.P.G.chatappbackend.config.WebSocketConfig;
-import com.P.G.chatappbackend.dto.ActiveUsersResponse;
+import com.P.G.chatappbackend.dto.OnlineUsers;
 import com.P.G.chatappbackend.dto.FirstMessagesResponse;
 import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.services.PublicChatRoomService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,12 +30,14 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -54,16 +58,21 @@ public class PublicChatRoomControllerTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private NameCache nameCache;
+    private CreateNamesCache nameCache;
+
+    @Autowired
+    private OnlineUserNameCache onlineUserNameCache;
 
     private CompletableFuture<Message> completableFuture1 = new CompletableFuture<>();
     private CompletableFuture<PreviousMessagesResponse> completableFuture2 = new CompletableFuture<>();
     private CompletableFuture<String> completableFuture3 = new CompletableFuture<>();
 
     @Before
-    public void tearDown() {
+    public void init() {
+        nameCache.clear();
         messageRepository.deleteAll();
-        nameCache.freeUpAllNames();
+        publicChatRoomService.initializeNameCache();
+        onlineUserNameCache.clearNames();
     }
 
     @Test
@@ -108,13 +117,17 @@ public class PublicChatRoomControllerTest {
     public void getActiveUsers_Test() {
         String session1 = "session1";
         String session2 = "session2";
-        String name1 = nameCache.getNameForClient(session1);
-        String name2 = nameCache.getNameForClient(session2);
 
-        ResponseEntity<ActiveUsersResponse> response = restTemplate.getForEntity("http://localhost:" + port + "/active-users", ActiveUsersResponse.class);
+        String name1 = nameCache.getNameForClient();
+        String name2 = nameCache.getNameForClient();
+
+        onlineUserNameCache.addNewOnlineUser(name1, session1);
+        onlineUserNameCache.addNewOnlineUser(name2, session2);
+
+        ResponseEntity<OnlineUsers> response = restTemplate.getForEntity("http://localhost:" + port + "/active-users", OnlineUsers.class);
         List<String> activeUsers = response.getBody().getUsers();
 
-        assertEquals(Arrays.asList(name1, name2), activeUsers);
+        assertTrue(activeUsers.containsAll(Arrays.asList(name1, name2)));
     }
 
     @Test
@@ -122,8 +135,11 @@ public class PublicChatRoomControllerTest {
         String session1 = "session1";
         String session2 = "session2";
 
-        nameCache.getNameForClient(session1);
-        nameCache.getNameForClient(session2);
+        String name1 = nameCache.getNameForClient();
+        String name2 = nameCache.getNameForClient();
+
+        onlineUserNameCache.addNewOnlineUser(name1, session1);
+        onlineUserNameCache.addNewOnlineUser(name2, session2);
 
         ResponseEntity<Integer> response = restTemplate.getForEntity("http://localhost:" + port + "/active-users/count", Integer.class);
         int count = response.getBody();
@@ -139,7 +155,14 @@ public class PublicChatRoomControllerTest {
         StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
         }).get(1, TimeUnit.SECONDS);
 
-        stompSession.subscribe("/topic/public-room", new sendMessageFrameHandler());
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("username", "Dave");
+
+        StompHeaders stompHeaders = new StompHeaders();
+        stompHeaders.setDestination("/topic/public-room");
+        stompHeaders.setAll(hashMap);
+
+        stompSession.subscribe(stompHeaders, new sendMessageFrameHandler());
 
         stompSession.send("/app/send", new Message("Dave", "Hello"));
 

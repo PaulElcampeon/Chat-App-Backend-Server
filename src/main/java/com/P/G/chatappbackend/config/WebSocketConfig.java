@@ -16,7 +16,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.springframework.messaging.simp.SimpMessageType.CONNECT_ACK;
@@ -52,17 +51,39 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     public Message<?> preSend(Message<?> message, MessageChannel channel) {
                         final StompCommand command = (StompCommand) message.getHeaders().get("stompCommand");
                         final String sessionId = (String) message.getHeaders().get("simpSessionId");
-                        if (command == StompCommand.CONNECT) {
-                            logger.log(
-                                    Level.INFO,
-                                    String.format("Client with sessionId %s just connected to the chat room",
-                                            sessionId));
-                        } else if (command == StompCommand.DISCONNECT) {
-                            logger.log(
-                                    Level.INFO,
-                                    String.format("%s just disconnected from the chat room", sessionId));
-                            publicChatRoomService.freeUpName(sessionId);
-                            publicChatRoomService.updateChatroomWithCurrentUsers();
+                        final StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(message);
+
+                        if (command == StompCommand.DISCONNECT) {
+
+                            publicChatRoomService.removeClientFromOnlineUsers(sessionId);
+
+                            publicChatRoomService.updateChatRoomWithCurrentUsers();
+
+                        } else if (command == StompCommand.SUBSCRIBE && stompHeaderAccessor.getDestination().equals("/topic/public-room")) {
+
+                            String username;
+
+                            if (stompHeaderAccessor.containsNativeHeader("username")) {
+
+                                username = stompHeaderAccessor.getNativeHeader("username").get(0);
+
+                                if (username.equals("")) {
+
+                                    publicChatRoomService.giveClientName(sessionId);
+
+                                } else {
+
+                                    publicChatRoomService.addClientToOnlineUsers(username, sessionId);
+                                }
+
+                            } else {
+
+                                publicChatRoomService.giveClientName(sessionId);
+
+                            }
+
+                            publicChatRoomService.updateChatRoomWithCurrentUsers();
+
                         }
                         return message;
                     }
@@ -78,17 +99,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         final String sessionId = (String) message.getHeaders().get("simpSessionId");
                         final StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(message);
                         final SimpMessageType messageType = headerAccessor.getMessageType();
+
                         if (messageType == CONNECT_ACK) {
+
                             final StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.CONNECTED);
+
                             accessor.setSessionId(sessionId);
                             // add custom headers
-                            final String name = publicChatRoomService.assignUserRandomName(sessionId);
-                            accessor.addNativeHeader("name", name);
                             accessor.addNativeHeader("sessionId", sessionId);
-                            logger.log(Level.INFO, String.format("Client with sessionId %s has been assigned the name %s", sessionId, name));
+
                             final Message<?> newMessage = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
+
                             return newMessage;
                         }
+
                         return message;
                     }
                 });

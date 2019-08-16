@@ -9,7 +9,4 @@ public class NameRequest {
 
     public NameRequest() {}
 
-    public NameRequest(String name) {
-        this.name = name;
-    }
 }

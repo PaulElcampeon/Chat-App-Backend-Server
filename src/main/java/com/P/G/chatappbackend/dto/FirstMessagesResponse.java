@@ -11,7 +11,8 @@ public class FirstMessagesResponse {
 
     private List<Message> messages = new ArrayList<>();
 
-    public FirstMessagesResponse() {}
+    public FirstMessagesResponse() {
+    }
 
     public FirstMessagesResponse(List<Message> messages) {
         this.messages = messages;

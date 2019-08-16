@@ -1,7 +1,7 @@
 package com.P.G.chatappbackend.services;
 
-import com.P.G.chatappbackend.dto.ActiveUsersResponse;
 import com.P.G.chatappbackend.dto.FirstMessagesResponse;
+import com.P.G.chatappbackend.dto.OnlineUsers;
 import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
 import com.P.G.chatappbackend.models.Message;
 import org.bson.types.ObjectId;
@@ -10,13 +10,11 @@ public interface PublicChatRoomService {
 
     void initializeNameCache();
 
-    String assignUserRandomName(String sessionId);
-
     Message processMessage(Message message);
 
-    ActiveUsersResponse getListOfCurrentUsers();
+    OnlineUsers getListOfCurrentUsers();
 
-    void freeUpName(String name);
+    void removeClientFromOnlineUsers(String sessionId);
 
     PreviousMessagesResponse getNPreviousMessages(ObjectId objectId, int numberOfMessages);
 
@@ -24,9 +22,13 @@ public interface PublicChatRoomService {
 
     int getNumberOfCurrentUsers();
 
-    void updateChatroomWithCurrentUsers();
+    void updateChatRoomWithCurrentUsers();
 
     void deleteAllMessages();
 
     Message test(int messPos);
+
+    void addClientToOnlineUsers(String name, String sessionId);
+
+    void giveClientName(String sessionId);
 }

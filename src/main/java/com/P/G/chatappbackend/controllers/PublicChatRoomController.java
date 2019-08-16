@@ -1,8 +1,11 @@
 package com.P.G.chatappbackend.controllers;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.P.G.chatappbackend.dto.FirstMessagesResponse;
+import com.P.G.chatappbackend.dto.OnlineUsers;
+import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
+import com.P.G.chatappbackend.models.Message;
+import com.P.G.chatappbackend.models.MessageId;
+import com.P.G.chatappbackend.services.PublicChatRoomService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -11,19 +14,10 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import com.P.G.chatappbackend.dto.ActiveUsersResponse;
-import com.P.G.chatappbackend.dto.FirstMessagesResponse;
-import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
-import com.P.G.chatappbackend.models.Message;
-import com.P.G.chatappbackend.models.MessageId;
-import com.P.G.chatappbackend.services.PublicChatRoomService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
@@ -51,12 +45,13 @@ public class PublicChatRoomController {
     @RequestMapping(value = "/messages/latest/{numberOfMessages}", method = RequestMethod.GET)
     @ResponseBody
     FirstMessagesResponse getFirst10Messages(@PathVariable("numberOfMessages") int numberOfMessages) {
+        logger.log(Level.INFO, String.format("Client has just made a request for the latest %d messages", numberOfMessages));
         return chatRoomServicePublic.getFirstNMessages(numberOfMessages);
     }
 
     @RequestMapping(value = "/active-users", method = RequestMethod.GET)
     @ResponseBody
-    public ActiveUsersResponse getActiveUsers() {
+    public OnlineUsers getActiveUsers() {
         return chatRoomServicePublic.getListOfCurrentUsers();
     }
 
@@ -103,7 +98,7 @@ public class PublicChatRoomController {
 
     @MessageMapping(value = "/active-users")
     @SendTo(value = "/topic/public-room/active-users")
-    public ActiveUsersResponse getActiveUsers(@Header("simpSessionId") String sessionId) {
+    public OnlineUsers getActiveUsers(@Header("simpSessionId") String sessionId) {
         logger.log(Level.INFO, String.format("Client with sessionId:%s has just made a request for list of active users", sessionId));
         return chatRoomServicePublic.getListOfCurrentUsers();
     }
