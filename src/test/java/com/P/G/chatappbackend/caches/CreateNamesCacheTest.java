@@ -61,6 +61,6 @@ public class CreateNamesCacheTest {
 
         long result = nameCache.getNumberOfAvailableNames();
 
-        assertEquals(nameCache.getSize() - noOfCreatedUsers , result);
+        assertEquals(nameCache.getSize() - noOfCreatedUsers, result);
     }
 }

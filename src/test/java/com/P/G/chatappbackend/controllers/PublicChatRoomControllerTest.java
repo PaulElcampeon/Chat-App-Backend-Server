@@ -4,13 +4,13 @@ import com.P.G.chatappbackend.ChatAppBackendApplication;
 import com.P.G.chatappbackend.cache.CreateNamesCache;
 import com.P.G.chatappbackend.cache.OnlineUserNameCache;
 import com.P.G.chatappbackend.config.WebSocketConfig;
-import com.P.G.chatappbackend.dto.OnlineUsers;
 import com.P.G.chatappbackend.dto.FirstMessagesResponse;
+import com.P.G.chatappbackend.dto.OnlineUsers;
 import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.services.PublicChatRoomService;
-import org.junit.After;
+import lombok.Data;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,10 +62,6 @@ public class PublicChatRoomControllerTest {
 
     @Autowired
     private OnlineUserNameCache onlineUserNameCache;
-
-    private CompletableFuture<Message> completableFuture1 = new CompletableFuture<>();
-    private CompletableFuture<PreviousMessagesResponse> completableFuture2 = new CompletableFuture<>();
-    private CompletableFuture<String> completableFuture3 = new CompletableFuture<>();
 
     @Before
     public void init() {
@@ -162,25 +158,29 @@ public class PublicChatRoomControllerTest {
         stompHeaders.setDestination("/topic/public-room");
         stompHeaders.setAll(hashMap);
 
-        stompSession.subscribe(stompHeaders, new sendMessageFrameHandler());
+        CompletableFuture<MessageAndSessionIdHolder> completableFuture = new CompletableFuture<>();
+
+        stompSession.subscribe(stompHeaders, new SendMessageFrameHandler(completableFuture));
 
         stompSession.send("/app/send", new Message("Dave", "Hello"));
 
-        Message message = completableFuture1.get(10, TimeUnit.SECONDS);
+        MessageAndSessionIdHolder message = completableFuture.get(10, TimeUnit.SECONDS);
 
-        assertNotNull(message);
+        assertNotNull(message.getMessage());
 
         stompSession.disconnect();
     }
 
     @Test
-    public void getPreviousNMessages_Websocket_Test() throws InterruptedException, ExecutionException, TimeoutException {
+    public void getPreviousNMessages_WebSocket_Test() throws InterruptedException, ExecutionException, TimeoutException {
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
         StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
         }).get(1, TimeUnit.SECONDS);
 
-        stompSession.subscribe("/topic/public-room", new sendMessageFrameHandler());
+        CompletableFuture<MessageAndSessionIdHolder> completableFutureMessageAndSessionIdHolder = new CompletableFuture<>();
+
+        stompSession.subscribe("/topic/public-room", new SendMessageFrameHandler(completableFutureMessageAndSessionIdHolder));
         stompSession.send("/app/send", new Message("Dave", "Hello"));
 
         Message message1 = new Message("Sanji", "Hello alll");
@@ -190,11 +190,13 @@ public class PublicChatRoomControllerTest {
 
         messageRepository.saveAll(Arrays.asList(message1, message2, message3, message4));
 
-        stompSession.subscribe("/queue/" + completableFuture3.get(10, TimeUnit.SECONDS), new getPreviousMessagesFrameHandler());
+        CompletableFuture<PreviousMessagesResponse> completableFuturePreviousMessageResponse = new CompletableFuture<>();
+
+        stompSession.subscribe("/queue/" + completableFutureMessageAndSessionIdHolder.get(10, TimeUnit.SECONDS).getSessionId(), new GetPreviousMessagesFrameHandler(completableFuturePreviousMessageResponse));
 
         stompSession.send("/app/previous-messages/2", message4.get_id());
 
-        PreviousMessagesResponse results = completableFuture2.get(10, TimeUnit.SECONDS);
+        PreviousMessagesResponse results = completableFuturePreviousMessageResponse.get(10, TimeUnit.SECONDS);
 
         assertEquals(2, results.getMessages().size());
         assertEquals(Arrays.asList(message3, message2), results.getMessages());
@@ -202,7 +204,20 @@ public class PublicChatRoomControllerTest {
         stompSession.disconnect();
     }
 
-    private class sendMessageFrameHandler implements StompFrameHandler {
+    @Data
+    private class MessageAndSessionIdHolder {
+        private Message message;
+        private String sessionId;
+    }
+
+    private class SendMessageFrameHandler implements StompFrameHandler {
+
+        private CompletableFuture<MessageAndSessionIdHolder> completableFuture;
+
+        private SendMessageFrameHandler(CompletableFuture<MessageAndSessionIdHolder> completableFuture) {
+            this.completableFuture = completableFuture;
+        }
+
         @Override
         public Type getPayloadType(StompHeaders stompHeaders) {
             return Message.class;
@@ -210,12 +225,20 @@ public class PublicChatRoomControllerTest {
 
         @Override
         public void handleFrame(StompHeaders stompHeaders, Object o) {
-            completableFuture3.complete(stompHeaders.getMessageId().substring(0, stompHeaders.getMessageId().length() - 2));
-            completableFuture1.complete((Message) o);
+            MessageAndSessionIdHolder messageAndSessionIdHolder = new MessageAndSessionIdHolder();
+            messageAndSessionIdHolder.setSessionId(stompHeaders.getMessageId().substring(0, stompHeaders.getMessageId().length() - 2));
+            messageAndSessionIdHolder.setMessage((Message) o);
+            this.completableFuture.complete(messageAndSessionIdHolder);
         }
     }
 
-    private class getPreviousMessagesFrameHandler implements StompFrameHandler {
+    private class GetPreviousMessagesFrameHandler implements StompFrameHandler {
+        private CompletableFuture<PreviousMessagesResponse> completableFuture;
+
+        private GetPreviousMessagesFrameHandler(CompletableFuture<PreviousMessagesResponse> completableFuture) {
+            this.completableFuture = completableFuture;
+        }
+
         @Override
         public Type getPayloadType(StompHeaders stompHeaders) {
             return PreviousMessagesResponse.class;
@@ -223,7 +246,7 @@ public class PublicChatRoomControllerTest {
 
         @Override
         public void handleFrame(StompHeaders stompHeaders, Object o) {
-            completableFuture2.complete((PreviousMessagesResponse) o);
+            completableFuture.complete((PreviousMessagesResponse) o);
         }
     }
 }
