@@ -12,7 +12,7 @@ public class NameCreator {
 
     private final String[] adjectives = {"Funny", "Slow", "Dark", "Pasty", "Spotty", "Limping"};
     private final String[] nouns = {"Cat", "Dog", "Car", "Puppy", "Toilet", "Raccoon"};
-    private final String[] verbs = {"Towing", "Running", "Swimming", "Farting", "Vomiting", "Fapping"};
+    private final String[] verbs = {"Towing", "Running", "Swimming", "Farting", "Vomiting", "Wrestling"};
     private final StringBuilder stringBuilder = new StringBuilder();
 
     public HashMap<String, Boolean> createMapOfNamesWithAvailability() {
