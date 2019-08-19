@@ -101,7 +101,6 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
         String name = createdNamesCache.getNameForClient();
         onlineUserNameCache.addNewOnlineUser(name, sessionId);
         return name;
-//        simpMessagingTemplate.convertAndSend(String.format("/queue/%s", sessionId), name);
     }
 
     @Override
