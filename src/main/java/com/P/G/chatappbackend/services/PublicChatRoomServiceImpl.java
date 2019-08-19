@@ -97,10 +97,11 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     }
 
     @Override
-    public void giveClientName(String sessionId) {
+    public String giveClientName(String sessionId) {
         String name = createdNamesCache.getNameForClient();
         onlineUserNameCache.addNewOnlineUser(name, sessionId);
-        simpMessagingTemplate.convertAndSend(String.format("/queue/%s", sessionId), name);
+        return name;
+//        simpMessagingTemplate.convertAndSend(String.format("/queue/%s", sessionId), name);
     }
 
     @Override

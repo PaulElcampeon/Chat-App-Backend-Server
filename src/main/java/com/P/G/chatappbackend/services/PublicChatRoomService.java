@@ -30,5 +30,5 @@ public interface PublicChatRoomService {
 
     void addClientToOnlineUsers(String name, String sessionId);
 
-    void giveClientName(String sessionId);
+    String giveClientName(String sessionId);
 }
