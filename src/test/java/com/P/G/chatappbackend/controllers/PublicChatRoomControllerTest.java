@@ -145,6 +145,7 @@ public class PublicChatRoomControllerTest {
 
     @Test
     public void sendMessage_Test() throws InterruptedException, ExecutionException, TimeoutException {
+        //TODO test for name in header, added username in header
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
