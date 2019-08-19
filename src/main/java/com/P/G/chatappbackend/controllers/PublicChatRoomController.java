@@ -31,10 +31,16 @@ public class PublicChatRoomController {
 
     private Logger logger = Logger.getLogger(PublicChatRoomController.class.getName());
 
+//    @RequestMapping(value = "/", method = RequestMethod.GET)
+//    public @ResponseBody
+//    String homePage() {
+//        return "Im awake now";
+//    }
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public @ResponseBody
+    public
     String homePage() {
-        return "Im awake now";
+        return "index.html";
     }
 
     @RequestMapping(value = "/messages/delete", method = RequestMethod.DELETE)
