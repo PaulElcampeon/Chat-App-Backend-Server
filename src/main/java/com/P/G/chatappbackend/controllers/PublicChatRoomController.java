@@ -30,7 +30,7 @@ public class PublicChatRoomController {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     private Logger logger = Logger.getLogger(PublicChatRoomController.class.getName());
-    
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String homePage() {
         return "index.html";
