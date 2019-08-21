@@ -30,7 +30,7 @@ public class ChatAppBackendApplication {
         publicChatRoomService.initializeNameCache();
 //		privateChatRoomService.initializeNames();
 
-        System.out.println(environment.getProperty("pass"));
+        System.out.println(environment.getProperty("dbPass"));
     }
 
 
