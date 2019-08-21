@@ -10,9 +10,9 @@ import java.util.HashMap;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class NameCreator {
 
-    private final String[] adjectives = {"Funny", "Slow", "Dark", "Spotty", "Kind", "Jumping", "Raving", "Colliding", "Heavy", "Lovely"};
-    private final String[] nouns = {"Cat", "Dog", "Car", "Puppy", "Raccoon", "Apple", "Banana", "Orange", "Strawberry", "Grape"};
-    private final String[] verbs = {"Dripping", "Running", "Swimming", "Farting", "Vomiting", "Wrestling", "Kicking", "Punching", "Shutting", "Driving"};
+    private final String[] adjectives = {"Funny", "Slow", "Dark", "Spotty", "Kind", "Jumping", "Raving", "Colliding", "Heavy", "Lovely", "Sad", "Flashing", "Powerful", "Mighty", "Tasty"};
+    private final String[] nouns = {"Cat", "Dog", "Rabbit", "Puppy", "Raccoon", "Apple", "Banana", "Orange", "Strawberry", "Grape", "Vanilla", "Rasberry", "Coconut", "Mango", "Pear"};
+    private final String[] verbs = {"Dripping", "Running", "Swimming", "Singing", "Squeezing", "Wrestling", "Kicking", "Punching", "Lifting", "Driving", "Cooling", "Chilling", "Skipping", "Dancing", "Diving"};
     private final StringBuilder stringBuilder = new StringBuilder();
 
     public HashMap<String, Boolean> createMapOfNamesWithAvailability() {
