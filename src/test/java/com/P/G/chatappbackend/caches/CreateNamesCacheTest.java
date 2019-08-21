@@ -1,16 +1,21 @@
 package com.P.G.chatappbackend.caches;
 
 import com.P.G.chatappbackend.cache.CreateNamesCache;
+import com.P.G.chatappbackend.models.NameHolder;
+import com.P.G.chatappbackend.repositiories.NameRepository;
 import com.P.G.chatappbackend.util.NameCreator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateNamesCacheTest {
@@ -18,6 +23,9 @@ public class CreateNamesCacheTest {
 
     @Spy
     private NameCreator nameCreator;
+
+    @Mock
+    private NameRepository nameRepository;
 
     @InjectMocks
     private CreateNamesCache nameCache;
@@ -46,10 +54,13 @@ public class CreateNamesCacheTest {
 
     @Test
     public void getNameForClient_Test() {
+        when(nameRepository.existsById(Mockito.anyString())).thenReturn(false);
+
         String name = nameCache.getNameForClient();
 
         assertFalse(nameCache.getNames().get(name));
         assertNotNull(name);
+        verify(nameRepository, times(1)).insert(Mockito.any(NameHolder.class));
     }
 
     @Test

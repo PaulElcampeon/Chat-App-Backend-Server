@@ -17,9 +17,9 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PublicChatRoomServiceTest {
@@ -55,7 +55,7 @@ public class PublicChatRoomServiceTest {
 
     @Test
     public void initializeNameCache_Test() {
-        assertEquals("Number of names should be 1000", 1000, nameCache.getNames().size());
+        assertEquals("Number of names should be 3375", 3375, nameCache.getNames().size());
 
         verify(nameCreator, times(1)).createMapOfNamesWithAvailability();
         verify(nameCache, times(1)).setNameCache(Mockito.any());
@@ -65,27 +65,9 @@ public class PublicChatRoomServiceTest {
     public void processMessage_Test() {
         String messageContent = "hello";
         Message message = new Message("Dave", messageContent);
+
         chatRoomService.processMessage(message);
+
         assertNotEquals("The content of the message should have been encrypted", messageContent, message.getContent());
-//        verify(messageRepository, times(1)).insert(Mockito.any(Message.class));
-    }
-
-    @Test
-    public void getListOfCurrentUsers_Test() {
-        chatRoomService.giveClientName("test1");
-        chatRoomService.giveClientName("test2");
-        chatRoomService.giveClientName("test3");
-
-        OnlineUsers names = chatRoomService.getListOfCurrentUsers();
-
-        assertEquals("Should be 3 names", 3, names.getUsers().size());
-    }
-
-    @Test
-    public void freeUpName_Test() {
-        chatRoomService.giveClientName("test1");
-        chatRoomService.removeClientFromOnlineUsers("test1");
-
-        verify(onlineUserNameCache, times(1)).removeUserFromCache("test1");
     }
 }

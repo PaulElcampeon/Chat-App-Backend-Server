@@ -21,6 +21,6 @@ public class NameCreatorTest {
 
     @Test
     public void nameCreator_Test() {
-        assertEquals("Number of distinct names created should be 1000", 1000, nameCreator.createMapOfNamesWithAvailability().size());
+        assertEquals("Number of distinct names created should be 3375", 3375, nameCreator.createMapOfNamesWithAvailability().size());
     }
 }
