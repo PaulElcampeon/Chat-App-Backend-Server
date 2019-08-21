@@ -30,23 +30,11 @@ public class PublicChatRoomController {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     private Logger logger = Logger.getLogger(PublicChatRoomController.class.getName());
-
-//    @RequestMapping(value = "/", method = RequestMethod.GET)
-//    public @ResponseBody
-//    String homePage() {
-//        return "Im awake now";
-//    }
-
+    
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public
-    String homePage() {
+    public String homePage() {
         return "index.html";
     }
-
-//    @RequestMapping(value = "/messages/delete", method = RequestMethod.DELETE)
-//    public void deleteMessages() {
-//        chatRoomServicePublic.deleteAllMessages();
-//    }
 
     @RequestMapping(value = "/messages/latest/{numberOfMessages}", method = RequestMethod.GET)
     @ResponseBody
@@ -92,7 +80,8 @@ public class PublicChatRoomController {
     @SendTo(value = "/topic/public-room")
     public Message sendMessage(@RequestBody Message message, @Header("simpSessionId") String sessionId) {
         logger.log(Level.INFO, String.format("%s has just sent the message %s", message.getSender(), message.getContent()));
-        return chatRoomServicePublic.processMessage(message);
+        Message encryptedMessage = chatRoomServicePublic.processMessage(message);
+        return chatRoomServicePublic.decryptMessage(encryptedMessage);
     }
 
     @MessageMapping(value = "/previous-messages/{numberOfMessages}")
