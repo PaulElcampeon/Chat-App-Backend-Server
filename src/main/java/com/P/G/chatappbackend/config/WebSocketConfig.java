@@ -1,5 +1,6 @@
 package com.P.G.chatappbackend.config;
 
+import com.P.G.chatappbackend.repositiories.NameRepository;
 import com.P.G.chatappbackend.services.PublicChatRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Autowired
     private PublicChatRoomService publicChatRoomService;
+
+    @Autowired
+    private NameRepository nameRepository;
 
     private Logger logger = Logger.getLogger(WebSocketConfig.class.getName());
 
@@ -111,14 +115,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
                             if (nativeHeaders.containsKey("username")) {
 
-                                if (nativeHeaders.get("username").get(0).equals("")) {
+                                if (nativeHeaders.get("username").get(0).equals("") || !nameRepository.existsById(nativeHeaders.get("username").get(0))) {
 
                                     String name = publicChatRoomService.giveClientName(sessionId);
 
                                     accessor.addNativeHeader("name", name);
+
                                 } else {
 
                                     String username = nativeHeaders.get("username").get(0);
+
+                                    accessor.addNativeHeader("name", username);
 
                                     publicChatRoomService.addClientToOnlineUsers(username, sessionId);
 
