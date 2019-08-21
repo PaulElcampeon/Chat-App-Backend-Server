@@ -1,5 +1,8 @@
 package com.P.G.chatappbackend.cache;
 
+import com.P.G.chatappbackend.models.NameHolder;
+import com.P.G.chatappbackend.repositiories.NameRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -14,6 +17,9 @@ import java.util.logging.Logger;
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class CreateNamesCache {
+
+    @Autowired
+    private NameRepository nameRepository;
 
     private HashMap<String, Boolean> names;
 
@@ -34,9 +40,10 @@ public class CreateNamesCache {
             int counter = 0;
             while (true) {
                 String name = listOfNames.get(ThreadLocalRandom.current().nextInt(this.size));
-                if (names.get(name)) {
+                if (names.get(name) && !checkIfNameAlreadyUsed(name)) {
                     names.put(name, false);
                     logger.log(Level.INFO, String.format("Current status of name cache%nAvailable names: %d ", getNumberOfAvailableNames()));
+                    addNameToRepository(name);
                     return name;
                 }
                 counter++;
@@ -70,4 +77,11 @@ public class CreateNamesCache {
         return names.values().stream().filter(name -> name).count();
     }
 
+    public boolean checkIfNameAlreadyUsed(String name) {
+        return nameRepository.existsById(name);
+    }
+
+    public void addNameToRepository(String name) {
+       nameRepository.insert(new NameHolder(name));
+    }
 }
