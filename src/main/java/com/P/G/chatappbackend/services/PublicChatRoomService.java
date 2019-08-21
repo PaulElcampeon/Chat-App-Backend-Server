@@ -24,8 +24,6 @@ public interface PublicChatRoomService {
 
     void updateChatRoomWithCurrentUsers();
 
-    void deleteAllMessages();
-
     Message test(int messPos);
 
     void addClientToOnlineUsers(String name, String sessionId);

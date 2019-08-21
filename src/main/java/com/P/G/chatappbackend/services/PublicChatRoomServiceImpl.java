@@ -126,9 +126,4 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
         onlineUserNameCache.addNewOnlineUser(name, sessionId);
         return name;
     }
-
-    @Override
-    public void deleteAllMessages() {
-        messageRepository.deleteAll();
-    }
 }
