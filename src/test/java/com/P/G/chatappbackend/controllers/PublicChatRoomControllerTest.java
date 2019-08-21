@@ -72,20 +72,18 @@ public class PublicChatRoomControllerTest {
     }
 
     @Test
-    public void homePage_Test() {
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:" + port, String.class);
-
-        assertEquals("Im awake now", response.getBody());
-        assertEquals(200, response.getStatusCodeValue());
-    }
-
-    @Test
     public void getFirstNMessages_Test() {
         Message message1 = new Message("Cathy", "hello");
         Message message2 = new Message("Lathy", "mello");
         Message message3 = new Message("Ian", "mello");
 
-        messageRepository.insert(Arrays.asList(message1, message2, message3));
+        publicChatRoomService.processMessage(message1);
+        publicChatRoomService.processMessage(message2);
+        publicChatRoomService.processMessage(message3);
+
+        publicChatRoomService.decryptMessage(message1);
+        publicChatRoomService.decryptMessage(message2);
+        publicChatRoomService.decryptMessage(message3);
 
         ResponseEntity<FirstMessagesResponse> response = restTemplate.getForEntity("http://localhost:" + port + "/messages/latest/2", FirstMessagesResponse.class);
 
@@ -101,7 +99,17 @@ public class PublicChatRoomControllerTest {
         Message message4 = new Message("Dav", "pluck");
         Message message5 = new Message("Fred", "Shut it");
 
-        messageRepository.insert(Arrays.asList(message1, message2, message3, message4, message5));
+        publicChatRoomService.processMessage(message1);
+        publicChatRoomService.processMessage(message2);
+        publicChatRoomService.processMessage(message3);
+        publicChatRoomService.processMessage(message4);
+        publicChatRoomService.processMessage(message5);
+
+        publicChatRoomService.decryptMessage(message1);
+        publicChatRoomService.decryptMessage(message2);
+        publicChatRoomService.decryptMessage(message3);
+        publicChatRoomService.decryptMessage(message4);
+        publicChatRoomService.decryptMessage(message5);
 
         ResponseEntity<PreviousMessagesResponse> response = restTemplate.postForEntity("http://localhost:" + port + "/message/previous/3", message5.get_id(), PreviousMessagesResponse.class);
 
@@ -189,7 +197,15 @@ public class PublicChatRoomControllerTest {
         Message message3 = new Message("Nevo", "Lol");
         Message message4 = new Message("Mable", "Podi");
 
-        messageRepository.saveAll(Arrays.asList(message1, message2, message3, message4));
+        publicChatRoomService.processMessage(message1);
+        publicChatRoomService.processMessage(message2);
+        publicChatRoomService.processMessage(message3);
+        publicChatRoomService.processMessage(message4);
+
+        publicChatRoomService.decryptMessage(message1);
+        publicChatRoomService.decryptMessage(message2);
+        publicChatRoomService.decryptMessage(message3);
+        publicChatRoomService.decryptMessage(message4);
 
         CompletableFuture<PreviousMessagesResponse> completableFuturePreviousMessageResponse = new CompletableFuture<>();
 

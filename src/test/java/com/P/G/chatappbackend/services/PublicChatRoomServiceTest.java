@@ -17,7 +17,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -55,7 +55,7 @@ public class PublicChatRoomServiceTest {
 
     @Test
     public void initializeNameCache_Test() {
-        assertEquals("Number of names should be 216", 216, nameCache.getNames().size());
+        assertEquals("Number of names should be 1000", 1000, nameCache.getNames().size());
 
         verify(nameCreator, times(1)).createMapOfNamesWithAvailability();
         verify(nameCache, times(1)).setNameCache(Mockito.any());
@@ -63,7 +63,10 @@ public class PublicChatRoomServiceTest {
 
     @Test
     public void processMessage_Test() {
-        chatRoomService.processMessage(new Message());
+        String messageContent = "hello";
+        Message message = new Message("Dave", messageContent);
+        chatRoomService.processMessage(message);
+        assertNotEquals("The content of the message should have been encrypted", messageContent, message.getContent());
 //        verify(messageRepository, times(1)).insert(Mockito.any(Message.class));
     }
 
