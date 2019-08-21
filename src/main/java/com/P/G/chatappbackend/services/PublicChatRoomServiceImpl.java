@@ -9,6 +9,7 @@ import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.util.NameCreator;
 import org.bson.types.ObjectId;
+import org.jasypt.util.text.BasicTextEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -16,6 +17,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PublicChatRoomServiceImpl implements PublicChatRoomService {
@@ -38,15 +42,33 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
+    private BasicTextEncryptor basicTextEncryptor = new BasicTextEncryptor();
+
+    public PublicChatRoomServiceImpl() {
+        basicTextEncryptor.setPassword("secret-password");
+    }
+
     @Override
     public void initializeNameCache() {
         createdNamesCache.setNameCache(nameCreator.createMapOfNamesWithAvailability());
     }
 
     @Override
+    public Message encryptMessage(Message message) {
+        message.setContent(basicTextEncryptor.encrypt(message.getContent()));
+        return message;
+    }
+
+    @Override
+    public Message decryptMessage(Message message) {
+        message.setContent(basicTextEncryptor.decrypt(message.getContent()));
+        return message;
+    }
+
+    @Override
     public Message processMessage(Message message) {
         message.setTimeSent(System.currentTimeMillis());
-        return messageRepository.insert(message);
+        return messageRepository.insert(encryptMessage(message));
     }
 
     @Override
@@ -66,7 +88,8 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
                 .where("_id").lt(objectId));
         query.limit(numberOfMessages);
         query.with(new Sort(Sort.Direction.DESC, "_id"));
-        return new PreviousMessagesResponse(mongoTemplate.find(query, Message.class));
+        List<Message> decryptedMessages =  mongoTemplate.find(query, Message.class).stream().map(this::decryptMessage).collect(Collectors.toList());
+        return new PreviousMessagesResponse(decryptedMessages);
     }
 
     @Override
@@ -74,7 +97,8 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
         Query query = new Query();
         query.limit(numberOfMessages);
         query.with(new Sort(Sort.Direction.DESC, "_id"));
-        return new FirstMessagesResponse(mongoTemplate.find(query, Message.class));
+        List<Message> decryptedMessages =  mongoTemplate.find(query, Message.class).stream().map(this::decryptMessage).collect(Collectors.toList());
+        return new FirstMessagesResponse(decryptedMessages);
     }
 
     @Override

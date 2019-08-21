@@ -31,4 +31,9 @@ public interface PublicChatRoomService {
     void addClientToOnlineUsers(String name, String sessionId);
 
     String giveClientName(String sessionId);
+
+    Message encryptMessage(Message message);
+
+    Message decryptMessage(Message message);
+
 }
