@@ -16,8 +16,6 @@ public class ChatAppBackendApplication {
     @Autowired
     private PublicChatRoomService publicChatRoomService;
 
-    @Autowired
-    private Environment environment;
 //	@Autowired
 //	private PrivateChatRoomService privateChatRoomService;
 
@@ -29,9 +27,5 @@ public class ChatAppBackendApplication {
     public void init() {
         publicChatRoomService.initializeNameCache();
 //		privateChatRoomService.initializeNames();
-
-        System.out.println(environment.getProperty("dbPass"));
     }
-
-
 }
