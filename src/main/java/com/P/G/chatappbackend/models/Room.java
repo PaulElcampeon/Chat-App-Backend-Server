@@ -13,8 +13,7 @@ public class Room {
 
     @Id
     private String roomId;
-    private List<PrivateChatterInfo> users = new ArrayList<>();
-    private List<Message> messages = new ArrayList<>();
+    private List<String> users = new ArrayList<>();
 
     public Room() {
 
