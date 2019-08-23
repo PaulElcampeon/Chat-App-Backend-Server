@@ -1,5 +1,6 @@
 package com.P.G.chatappbackend.caches;
 
+import com.P.G.chatappbackend.NameAndRoomIdHolder;
 import com.P.G.chatappbackend.cache.OnlineUserNameCache;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,8 +21,8 @@ public class OnlineUserNameCacheTest {
     @Test
     public void addNewOnlineUser_test() {
         String sessionId = "12352";
-
-        onlineUserNameCache.addNewOnlineUser("Dave", sessionId);
+        NameAndRoomIdHolder nameAndRoomIdHolder = new NameAndRoomIdHolder("Dave", "test1");
+        onlineUserNameCache.addNewOnlineUser(nameAndRoomIdHolder, sessionId);
 
         assertTrue(onlineUserNameCache.getNames().containsKey(sessionId));
     }
@@ -29,8 +30,9 @@ public class OnlineUserNameCacheTest {
     @Test
     public void removeUserFromCache_test() {
         String sessionId = "12352";
+        NameAndRoomIdHolder nameAndRoomIdHolder = new NameAndRoomIdHolder("Dave", "test1");
 
-        onlineUserNameCache.addNewOnlineUser("Dave", sessionId);
+        onlineUserNameCache.addNewOnlineUser(nameAndRoomIdHolder, sessionId);
 
         onlineUserNameCache.removeUserFromCache(sessionId);
 
@@ -41,12 +43,12 @@ public class OnlineUserNameCacheTest {
     public void getOnlineUsers_test() {
         String sessionId1 = "12352";
         String sessionId2 = "12352342";
-        String name1 = "Candy";
-        String name2 = "Richard";
+        NameAndRoomIdHolder nameAndRoomIdHolder1 = new NameAndRoomIdHolder("Candy", "test1");
+        NameAndRoomIdHolder nameAndRoomIdHolder2 = new NameAndRoomIdHolder("Richard", "test2");
 
-        onlineUserNameCache.addNewOnlineUser(name1, sessionId1);
-        onlineUserNameCache.addNewOnlineUser(name2, sessionId2);
+        onlineUserNameCache.addNewOnlineUser(nameAndRoomIdHolder1, sessionId1);
+        onlineUserNameCache.addNewOnlineUser(nameAndRoomIdHolder2, sessionId2);
 
-        assertTrue(onlineUserNameCache.getOnlineUsers().getUsers().containsAll(Arrays.asList(name1, name2)));
+        assertTrue(onlineUserNameCache.getNames().values().containsAll(Arrays.asList(nameAndRoomIdHolder1, nameAndRoomIdHolder2)));
     }
 }
