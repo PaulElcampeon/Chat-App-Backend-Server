@@ -82,6 +82,6 @@ public class CreateNamesCache {
     }
 
     public void addNameToRepository(String name) {
-       nameRepository.insert(new NameHolder(name));
+        nameRepository.insert(new NameHolder(name));
     }
 }
