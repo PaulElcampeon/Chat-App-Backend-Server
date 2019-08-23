@@ -9,7 +9,10 @@ import com.P.G.chatappbackend.dto.FirstMessagesResponse;
 import com.P.G.chatappbackend.dto.OnlineUsers;
 import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
 import com.P.G.chatappbackend.models.Mail;
+import com.P.G.chatappbackend.models.MailId;
 import com.P.G.chatappbackend.repositiories.MailRepository;
+import com.P.G.chatappbackend.repositiories.NameRepository;
+import com.P.G.chatappbackend.repositiories.RoomRepository;
 import com.P.G.chatappbackend.services.RoomService;
 import lombok.Data;
 import org.junit.Before;
@@ -53,6 +56,12 @@ public class RoomControllerTest {
     private MailRepository messageRepository;
 
     @Autowired
+    private NameRepository nameRepository;
+
+    @Autowired
+    private RoomRepository roomRepository;
+
+    @Autowired
     private RoomService roomService;
 
     @Autowired
@@ -67,34 +76,36 @@ public class RoomControllerTest {
     @Before
     public void init() {
         nameCache.clear();
-        messageRepository.deleteAll();
-        roomService.initializeNameCache();
         onlineUserNameCache.clearNames();
+        roomService.initializeNameCache();
+        messageRepository.deleteAll();
+        nameRepository.deleteAll();
+        roomRepository.deleteAll();
     }
 
     @Test
-    public void getFirstNMessages_Test() {
-        Mail message1 = new Mail("Cathy", "hello");
-        Mail message2 = new Mail("Lathy", "mello");
-        Mail message3 = new Mail("Ian", "mello");
+    public void getFirstNMessages() {
+        Mail message1 = new Mail("Cathy", "hello", "test1");
+        Mail message2 = new Mail("Lathy", "mello", "test1");
+        Mail message3 = new Mail("Ian", "mello", "test1");
 
         roomService.processMessage(message1);
         roomService.processMessage(message2);
         roomService.processMessage(message3);
 
-        ResponseEntity<FirstMessagesResponse> response = restTemplate.getForEntity("http://localhost:" + port + "/messages/latest/2", FirstMessagesResponse.class);
+        ResponseEntity<FirstMessagesResponse> response = restTemplate.getForEntity("http://localhost:" + port + "/messages/latest/test1/2", FirstMessagesResponse.class);
 
         assertEquals(Arrays.asList(message3, message2), response.getBody().getMessages());
         assertEquals(200, response.getStatusCodeValue());
     }
 
     @Test
-    public void getPreviousNMessages_HttpPost_Test() {
-        Mail message1 = new Mail("Cathy", "hello");
-        Mail message2 = new Mail("Lathy", "mello");
-        Mail message3 = new Mail("Ian", "kinda");
-        Mail message4 = new Mail("Dav", "pluck");
-        Mail message5 = new Mail("Fred", "Shut it");
+    public void getPreviousNMessages() {
+        Mail message1 = new Mail("Cathy", "hello", "test1");
+        Mail message2 = new Mail("Lathy", "mello", "test1");
+        Mail message3 = new Mail("Ian", "kinda", "test1");
+        Mail message4 = new Mail("Dav", "pluck", "test1");
+        Mail message5 = new Mail("Fred", "Shut it", "test1");
 
         roomService.processMessage(message1);
         roomService.processMessage(message2);
@@ -102,113 +113,37 @@ public class RoomControllerTest {
         roomService.processMessage(message4);
         roomService.processMessage(message5);
 
-        ResponseEntity<PreviousMessagesResponse> response = restTemplate.postForEntity("http://localhost:" + port + "/message/previous/3", message5.getId(), PreviousMessagesResponse.class);
+        MailId mailId = new MailId();
+        mailId.setRoomId("test1");
+        mailId.setCounter(message5.getId().getCounter());
+        mailId.setMachineIdentifier(message5.getId().getMachineIdentifier());
+        mailId.setProcessIdentifier(message5.getId().getProcessIdentifier());
+        mailId.setTimestamp(message5.getId().getTimestamp());
+
+        ResponseEntity<PreviousMessagesResponse> response = restTemplate.postForEntity("http://localhost:" + port + "/message/previous/3", mailId, PreviousMessagesResponse.class);
 
         assertEquals(Arrays.asList(message4, message3, message2), response.getBody().getMessages());
         assertEquals(200, response.getStatusCodeValue());
     }
 
     @Test
-    public void getActiveUsers_Test() {
-        String session1 = "session1";
-        String session2 = "session2";
-
-        String name1 = nameCache.getNameForClient();
-        String name2 = nameCache.getNameForClient();
-
-        NameAndRoomIdHolder nameAndRoomIdHolder1 = new NameAndRoomIdHolder(name1,"test1room");
-        NameAndRoomIdHolder nameAndRoomIdHolder2 = new NameAndRoomIdHolder(name2, "test2room");
-
-        onlineUserNameCache.addNewOnlineUser(nameAndRoomIdHolder1, session1);
-        onlineUserNameCache.addNewOnlineUser(nameAndRoomIdHolder2, session2);
-
-        ResponseEntity<OnlineUsers> response = restTemplate.getForEntity("http://localhost:" + port + "/active-users", OnlineUsers.class);
-        List<String> activeUsers = response.getBody().getUsers();
-
-        assertTrue(activeUsers.containsAll(Arrays.asList(name1, name2)));
-    }
-
-    @Test
-    public void getNumberOfActiveUsers_Test() {
-        String session1 = "session1";
-        String session2 = "session2";
-
-        String name1 = nameCache.getNameForClient();
-        String name2 = nameCache.getNameForClient();
-
-        NameAndRoomIdHolder nameAndRoomIdHolder1 = new NameAndRoomIdHolder(name1,"test1room");
-        NameAndRoomIdHolder nameAndRoomIdHolder2 = new NameAndRoomIdHolder(name2, "test2room");
-
-        onlineUserNameCache.addNewOnlineUser(nameAndRoomIdHolder1, session1);
-        onlineUserNameCache.addNewOnlineUser(nameAndRoomIdHolder2, session2);
-
-        ResponseEntity<Integer> response = restTemplate.getForEntity("http://localhost:" + port + "/active-users/count", Integer.class);
-        int count = response.getBody();
-
-        assertEquals(2, count);
-    }
-
-    @Test
-    public void sendMessage_Test() throws InterruptedException, ExecutionException, TimeoutException {
+    public void sendMessage() throws InterruptedException, ExecutionException, TimeoutException {
         //TODO test for name in header, added username in header
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
-        StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
-        }).get(1, TimeUnit.SECONDS);
-
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("username", "Dave");
-
-        StompHeaders stompHeaders = new StompHeaders();
-        stompHeaders.setDestination("/topic/public-room");
-        stompHeaders.setAll(hashMap);
+        StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/strawberryCR", port), new StompSessionHandlerAdapter() {}).get(1, TimeUnit.SECONDS);
 
         CompletableFuture<MessageAndSessionIdHolder> completableFuture = new CompletableFuture<>();
 
-        stompSession.subscribe(stompHeaders, new SendMessageFrameHandler(completableFuture));
+        stompSession.subscribe("/topic/room/test1", new SendMessageFrameHandler(completableFuture));
 
-        stompSession.send("/app/send", new Mail("Dave", "Hello"));
+        stompSession.send("/app/send/test1", new Mail("Dave", "Hello", "test1"));
 
         MessageAndSessionIdHolder message = completableFuture.get(10, TimeUnit.SECONDS);
 
+        assertEquals("Hello", message.getMessage().getContent());
         assertNotNull(message.getMessage());
-
-        stompSession.disconnect();
-    }
-
-    @Test
-    public void getPreviousNMessages_WebSocket_Test() throws InterruptedException, ExecutionException, TimeoutException {
-        WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-        StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
-        }).get(1, TimeUnit.SECONDS);
-
-        CompletableFuture<MessageAndSessionIdHolder> completableFutureMessageAndSessionIdHolder = new CompletableFuture<>();
-
-        stompSession.subscribe("/topic/public-room", new SendMessageFrameHandler(completableFutureMessageAndSessionIdHolder));
-        stompSession.send("/app/send", new Mail("Dave", "Hello"));
-
-        Mail message1 = new Mail("Sanji", "Hello alll");
-        Mail message2 = new Mail("Kable", "Bye");
-        Mail message3 = new Mail("Nevo", "Lol");
-        Mail message4 = new Mail("Mable", "Podi");
-
-        roomService.processMessage(message1);
-        roomService.processMessage(message2);
-        roomService.processMessage(message3);
-        roomService.processMessage(message4);
-
-        CompletableFuture<PreviousMessagesResponse> completableFuturePreviousMessageResponse = new CompletableFuture<>();
-
-        stompSession.subscribe("/queue/" + completableFutureMessageAndSessionIdHolder.get(10, TimeUnit.SECONDS).getSessionId(), new GetPreviousMessagesFrameHandler(completableFuturePreviousMessageResponse));
-
-        stompSession.send("/app/previous-messages/2", message4.getId());
-
-        PreviousMessagesResponse results = completableFuturePreviousMessageResponse.get(10, TimeUnit.SECONDS);
-
-        assertEquals(2, results.getMessages().size());
-        assertEquals(Arrays.asList(message3, message2), results.getMessages());
 
         stompSession.disconnect();
     }
@@ -238,24 +173,6 @@ public class RoomControllerTest {
             messageAndSessionIdHolder.setSessionId(stompHeaders.getMessageId().substring(0, stompHeaders.getMessageId().length() - 2));
             messageAndSessionIdHolder.setMessage((Mail) o);
             this.completableFuture.complete(messageAndSessionIdHolder);
-        }
-    }
-
-    private class GetPreviousMessagesFrameHandler implements StompFrameHandler {
-        private CompletableFuture<PreviousMessagesResponse> completableFuture;
-
-        private GetPreviousMessagesFrameHandler(CompletableFuture<PreviousMessagesResponse> completableFuture) {
-            this.completableFuture = completableFuture;
-        }
-
-        @Override
-        public Type getPayloadType(StompHeaders stompHeaders) {
-            return PreviousMessagesResponse.class;
-        }
-
-        @Override
-        public void handleFrame(StompHeaders stompHeaders, Object o) {
-            completableFuture.complete((PreviousMessagesResponse) o);
         }
     }
 }
