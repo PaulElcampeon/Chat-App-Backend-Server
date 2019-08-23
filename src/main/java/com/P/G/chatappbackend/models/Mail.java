@@ -24,6 +24,12 @@ public class Mail {
         this.content = content;
     }
 
+    public Mail(String sender, String content, String roomId) {
+        this.sender = sender;
+        this.content = content;
+        this.roomId = roomId;
+    }
+
     public Mail(String sender, String content, String roomId, long timeSent) {
         this.sender = sender;
         this.content = content;
