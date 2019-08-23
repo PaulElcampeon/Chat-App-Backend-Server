@@ -11,6 +11,7 @@ public class OnlineUsers {
     private List<String> users = new ArrayList<>();
 
     public OnlineUsers() {
+
     }
 
     public OnlineUsers(List<String> users) {
