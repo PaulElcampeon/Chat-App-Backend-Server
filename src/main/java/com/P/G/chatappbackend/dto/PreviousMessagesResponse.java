@@ -1,6 +1,6 @@
 package com.P.G.chatappbackend.dto;
 
-import com.P.G.chatappbackend.models.Message;
+import com.P.G.chatappbackend.models.Mail;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -9,12 +9,13 @@ import java.util.List;
 @Data
 public class PreviousMessagesResponse {
 
-    private List<Message> messages = new ArrayList<>();
+    private List<Mail> messages = new ArrayList<>();
 
     public PreviousMessagesResponse() {
+
     }
 
-    public PreviousMessagesResponse(List<Message> messages) {
+    public PreviousMessagesResponse(List<Mail> messages) {
         this.messages = messages;
     }
 
