@@ -1,7 +1,5 @@
 package com.P.G.chatappbackend.models;
 
-import com.P.G.chatappbackend.dto.RoomMessage;
-import com.P.G.chatappbackend.enums.MessageType;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -9,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "MAILS")
-public class Mail extends RoomMessage {
+public class Mail {
 
     @Id
     private ObjectId id;
@@ -19,11 +17,9 @@ public class Mail extends RoomMessage {
     private long timeSent;
 
     public Mail() {
-        super(MessageType.MAIL);
     }
 
     public Mail(String sender, String content, String roomId, long timeSent) {
-        super(MessageType.MAIL);
         this.sender = sender;
         this.content = content;
         this.roomId = roomId;
