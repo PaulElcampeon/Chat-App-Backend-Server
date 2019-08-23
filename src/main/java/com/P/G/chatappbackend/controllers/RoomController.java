@@ -32,8 +32,8 @@ public class RoomController {
     private Logger logger = Logger.getLogger(RoomController.class.getName());
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String homePage() {
-        return "index.html";
+    public @ResponseBody String homePage() {
+        return "Im awake now";
     }
 
     @RequestMapping(value = "/get/room-key", method = RequestMethod.GET)
