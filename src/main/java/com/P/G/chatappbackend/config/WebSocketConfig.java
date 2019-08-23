@@ -1,7 +1,8 @@
 package com.P.G.chatappbackend.config;
 
+import com.P.G.chatappbackend.NameAndRoomIdHolder;
 import com.P.G.chatappbackend.repositiories.NameRepository;
-import com.P.G.chatappbackend.services.PublicChatRoomService;
+import com.P.G.chatappbackend.services.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -30,7 +31,7 @@ import static org.springframework.messaging.simp.SimpMessageType.CONNECT_ACK;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Autowired
-    private PublicChatRoomService publicChatRoomService;
+    private RoomService roomService;
 
     @Autowired
     private NameRepository nameRepository;
@@ -40,7 +41,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
-                .addEndpoint("/ima")//(ima = Instant Messaging App);
+                .addEndpoint("/strawberryCR")
                 .setAllowedOrigins("*");
     }
 
@@ -59,40 +60,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     public Message<?> preSend(Message<?> message, MessageChannel channel) {
                         final StompCommand command = (StompCommand) message.getHeaders().get("stompCommand");
                         final String sessionId = (String) message.getHeaders().get("simpSessionId");
-                        final StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(message);
+
                         if (command == StompCommand.DISCONNECT) {
 
-                            publicChatRoomService.removeClientFromOnlineUsers(sessionId);
+                            NameAndRoomIdHolder nameAndRoomIdHolder = roomService.removeClientFromOnlineUsers(sessionId);
 
-                            publicChatRoomService.updateChatRoomWithCurrentUsers();
+                            roomService.removeUserFromPrivateRoom(nameAndRoomIdHolder);
+                            roomService.notifyChatRoomOfCurrentUsers(nameAndRoomIdHolder.getRoomId());
                         }
 
-//                        } else if (command == StompCommand.SUBSCRIBE && stompHeaderAccessor.getDestination().equals("/topic/public-room")) {
-//
-//                            String username;
-//
-//                            if (stompHeaderAccessor.containsNativeHeader("username")) {
-//
-//                                username = stompHeaderAccessor.getNativeHeader("username").get(0);
-//
-//                                if (username.equals("")) {
-//
-//                                    publicChatRoomService.giveClientName(sessionId);
-//
-//                                } else {
-//
-//                                    publicChatRoomService.addClientToOnlineUsers(username, sessionId);
-//                                }
-//
-//                            } else {
-//
-//                                publicChatRoomService.giveClientName(sessionId);
-//
-//                            }
-//
-//                            publicChatRoomService.updateChatRoomWithCurrentUsers();
-//
-//                        }
                         return message;
                     }
                 });
@@ -109,29 +85,33 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         final SimpMessageType messageType = headerAccessor.getMessageType();
                         final GenericMessage connectHeader = (GenericMessage) headerAccessor.getHeader(SimpMessageHeaderAccessor.CONNECT_MESSAGE_HEADER);    // FIXME find a way to pass the username to the server
 
+
                         if (messageType == CONNECT_ACK) {
                             final StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.CONNECTED);
                             final Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) connectHeader.getHeaders().get(SimpMessageHeaderAccessor.NATIVE_HEADERS);
 
                             if (nativeHeaders.containsKey("username")) {
 
+                                String username;
+
                                 if (nativeHeaders.get("username").get(0).equals("") || !nameRepository.existsById(nativeHeaders.get("username").get(0))) {
 
-                                    String name = publicChatRoomService.giveClientName(sessionId);
-
-                                    accessor.addNativeHeader("name", name);
+                                    username = roomService.giveClientName();
 
                                 } else {
 
-                                    String username = nativeHeaders.get("username").get(0);
-
-                                    accessor.addNativeHeader("name", username);
-
-                                    publicChatRoomService.addClientToOnlineUsers(username, sessionId);
-
+                                    username = nativeHeaders.get("username").get(0);
                                 }
 
-                                publicChatRoomService.updateChatRoomWithCurrentUsers();
+                                String roomId = nativeHeaders.get("roomId").get(0);
+                                NameAndRoomIdHolder nameAndRoomIdHolder = new NameAndRoomIdHolder(username, roomId);
+
+                                roomService.addClientToOnlineUsers(nameAndRoomIdHolder, sessionId);
+                                roomService.addClientToPrivateRoom(nameAndRoomIdHolder);
+                                roomService.notifyChatRoomOfCurrentUsers(nameAndRoomIdHolder.getRoomId());
+
+                                accessor.addNativeHeader("name", username);
+                                accessor.addNativeHeader("roomId", roomId);
                             }
 
                             accessor.setSessionId(sessionId);
