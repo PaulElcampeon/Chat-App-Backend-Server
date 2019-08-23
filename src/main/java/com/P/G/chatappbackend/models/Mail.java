@@ -19,6 +19,11 @@ public class Mail {
     public Mail() {
     }
 
+    public Mail(String sender, String content) {
+        this.sender = sender;
+        this.content = content;
+    }
+
     public Mail(String sender, String content, String roomId, long timeSent) {
         this.sender = sender;
         this.content = content;
