@@ -133,7 +133,7 @@ public class RoomServiceImpl implements RoomService {
         query.addCriteria(Criteria.where("roomId").is(roomId));
         query.fields().include("users");
 
-        simpMessagingTemplate.convertAndSend(String.format("/topic/room/%s", roomId), new OnlineUsers(mongoTemplate.findOne(query, Room.class).getUsers()));
+        simpMessagingTemplate.convertAndSend(String.format("/topic/room/%s/active-users", roomId), new OnlineUsers(mongoTemplate.findOne(query, Room.class).getUsers()));
     }
 
     @Override
