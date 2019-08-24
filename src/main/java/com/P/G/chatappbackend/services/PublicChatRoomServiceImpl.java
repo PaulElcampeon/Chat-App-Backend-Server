@@ -113,7 +113,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     @Override
     public void updateChatRoomWithCurrentUsers() {
-        simpMessagingTemplate.convertAndSend("/topic/public-room/active-users", getListOfCurrentUsers());
+        simpMessagingTemplate.convertAndSend("/topic/public-room.active-users", getListOfCurrentUsers());
     }
 
     public Message test(int messagePos) {
