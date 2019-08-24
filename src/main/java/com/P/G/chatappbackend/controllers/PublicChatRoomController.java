@@ -57,8 +57,12 @@ public class PublicChatRoomController {
     public Message sendMessage(@RequestBody Message message, @Header("simpSessionId") String sessionId) {
         logger.log(Level.INFO, String.format("%s has just sent the message %s", message.getSender(), message.getContent()));
 
-        Message encryptedMessage = chatRoomServicePublic.processMessage(message);
+//        Message encryptedMessage = chatRoomServicePublic.processMessage(message);
+        chatRoomServicePublic.processMessage(message);
 
-        return chatRoomServicePublic.decryptMessage(encryptedMessage);
+
+//        return chatRoomServicePublic.decryptMessage(encryptedMessage);
+        return message;
+
     }
 }
