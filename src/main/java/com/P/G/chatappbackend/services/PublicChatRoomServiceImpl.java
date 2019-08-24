@@ -16,9 +16,12 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +47,8 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     private BasicTextEncryptor basicTextEncryptor = new BasicTextEncryptor();
 
+    private Logger logger = Logger.getLogger(PublicChatRoomServiceImpl.class.getName());
+
     public PublicChatRoomServiceImpl() {
         basicTextEncryptor.setPassword("secret-password");
     }
@@ -56,18 +61,24 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     @Override
     public Message encryptMessage(Message message) {
         message.setContent(basicTextEncryptor.encrypt(message.getContent()));
+
         return message;
     }
 
     @Override
     public Message decryptMessage(Message message) {
         message.setContent(basicTextEncryptor.decrypt(message.getContent()));
+
         return message;
     }
 
     @Override
+    @Async
     public Message processMessage(Message message) {
+        logger.log(Level.INFO, String.format("Processing message %s", message));
+
         message.setTimeSent(System.currentTimeMillis());
+
         return messageRepository.insert(encryptMessage(message));
     }
 
@@ -89,6 +100,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
         query.limit(numberOfMessages);
         query.with(new Sort(Sort.Direction.DESC, "_id"));
         List<Message> decryptedMessages = mongoTemplate.find(query, Message.class).stream().map(this::decryptMessage).collect(Collectors.toList());
+
         return new PreviousMessagesResponse(decryptedMessages);
     }
 
@@ -98,6 +110,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
         query.limit(numberOfMessages);
         query.with(new Sort(Sort.Direction.DESC, "_id"));
         List<Message> decryptedMessages = mongoTemplate.find(query, Message.class).stream().map(this::decryptMessage).collect(Collectors.toList());
+
         return new FirstMessagesResponse(decryptedMessages);
     }
 
@@ -123,7 +136,9 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     @Override
     public String giveClientName(String sessionId) {
         String name = createdNamesCache.getNameForClient();
+
         onlineUserNameCache.addNewOnlineUser(name, sessionId);
+
         return name;
     }
 }
