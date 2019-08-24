@@ -49,7 +49,7 @@ public class PublicChatRoomServiceTest {
         createdNamesCache.clear();
         onlineUserNameCache.clearNames();
     }
-    
+
     @Test
     public void processMessage_Test() {
         String messageContent = "hello";
