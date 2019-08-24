@@ -9,22 +9,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PublicChatRoomServiceTest {
 
     @Spy
-    private CreatedNamesCache nameCache;
+    private CreatedNamesCache createdNamesCache;
 
     @Spy
     private NameCreator nameCreator;
@@ -35,31 +32,24 @@ public class PublicChatRoomServiceTest {
     @Mock
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    @Mock
+    @Spy
     private MessageRepository messageRepository;
 
     @InjectMocks
     private PublicChatRoomServiceImpl chatRoomService;
 
+
     @Before
-    public void init() {
-        chatRoomService.initializeNameCache();
+    public void initMocks() {
+        MockitoAnnotations.initMocks(this);
     }
 
     @After
     public void tearDown() {
-        nameCache.clear();
+        createdNamesCache.clear();
         onlineUserNameCache.clearNames();
     }
-
-    @Test
-    public void initializeNameCache_Test() {
-        assertEquals("Number of names should be 3375", 3375, nameCache.getNames().size());
-
-        verify(nameCreator, times(1)).createMapOfNamesWithAvailability();
-        verify(nameCache, times(1)).setNameCache(Mockito.any());
-    }
-
+    
     @Test
     public void processMessage_Test() {
         String messageContent = "hello";
@@ -68,5 +58,7 @@ public class PublicChatRoomServiceTest {
         chatRoomService.processMessage(message);
 
         assertNotEquals("The content of the message should have been encrypted", messageContent, message.getContent());
+
+        verify(messageRepository, times(1)).insert(Mockito.any(Message.class));
     }
 }

@@ -64,7 +64,6 @@ public class PublicChatRoomControllerTest {
     public void init() {
         nameCache.clear();
         messageRepository.deleteAll();
-        publicChatRoomService.initializeNameCache();
         onlineUserNameCache.clearNames();
     }
 
