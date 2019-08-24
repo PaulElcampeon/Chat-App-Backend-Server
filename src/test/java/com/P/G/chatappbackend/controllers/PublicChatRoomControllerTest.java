@@ -5,7 +5,6 @@ import com.P.G.chatappbackend.cache.CreateNamesCache;
 import com.P.G.chatappbackend.cache.OnlineUserNameCache;
 import com.P.G.chatappbackend.config.WebSocketConfig;
 import com.P.G.chatappbackend.dto.FirstMessagesResponse;
-import com.P.G.chatappbackend.dto.OnlineUsers;
 import com.P.G.chatappbackend.dto.PreviousMessagesResponse;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
@@ -31,13 +30,11 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -118,40 +115,6 @@ public class PublicChatRoomControllerTest {
     }
 
     @Test
-    public void getActiveUsers_Test() {
-        String session1 = "session1";
-        String session2 = "session2";
-
-        String name1 = nameCache.getNameForClient();
-        String name2 = nameCache.getNameForClient();
-
-        onlineUserNameCache.addNewOnlineUser(name1, session1);
-        onlineUserNameCache.addNewOnlineUser(name2, session2);
-
-        ResponseEntity<OnlineUsers> response = restTemplate.getForEntity("http://localhost:" + port + "/active-users", OnlineUsers.class);
-        List<String> activeUsers = response.getBody().getUsers();
-
-        assertTrue(activeUsers.containsAll(Arrays.asList(name1, name2)));
-    }
-
-    @Test
-    public void getNumberOfActiveUsers_Test() {
-        String session1 = "session1";
-        String session2 = "session2";
-
-        String name1 = nameCache.getNameForClient();
-        String name2 = nameCache.getNameForClient();
-
-        onlineUserNameCache.addNewOnlineUser(name1, session1);
-        onlineUserNameCache.addNewOnlineUser(name2, session2);
-
-        ResponseEntity<Integer> response = restTemplate.getForEntity("http://localhost:" + port + "/active-users/count", Integer.class);
-        int count = response.getBody();
-
-        assertEquals(2, count);
-    }
-
-    @Test
     public void sendMessage_Test() throws InterruptedException, ExecutionException, TimeoutException {
         //TODO test for name in header, added username in header
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
@@ -176,47 +139,6 @@ public class PublicChatRoomControllerTest {
         MessageAndSessionIdHolder message = completableFuture.get(10, TimeUnit.SECONDS);
 
         assertNotNull(message.getMessage());
-
-        stompSession.disconnect();
-    }
-
-    @Test
-    public void getPreviousNMessages_WebSocket_Test() throws InterruptedException, ExecutionException, TimeoutException {
-        WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-        StompSession stompSession = stompClient.connect(String.format("ws://localhost:%d/ima", port), new StompSessionHandlerAdapter() {
-        }).get(1, TimeUnit.SECONDS);
-
-        CompletableFuture<MessageAndSessionIdHolder> completableFutureMessageAndSessionIdHolder = new CompletableFuture<>();
-
-        stompSession.subscribe("/topic/public-room", new SendMessageFrameHandler(completableFutureMessageAndSessionIdHolder));
-        stompSession.send("/app/send", new Message("Dave", "Hello"));
-
-        Message message1 = new Message("Sanji", "Hello alll");
-        Message message2 = new Message("Kable", "Bye");
-        Message message3 = new Message("Nevo", "Lol");
-        Message message4 = new Message("Mable", "Podi");
-
-        publicChatRoomService.processMessage(message1);
-        publicChatRoomService.processMessage(message2);
-        publicChatRoomService.processMessage(message3);
-        publicChatRoomService.processMessage(message4);
-
-        publicChatRoomService.decryptMessage(message1);
-        publicChatRoomService.decryptMessage(message2);
-        publicChatRoomService.decryptMessage(message3);
-        publicChatRoomService.decryptMessage(message4);
-
-        CompletableFuture<PreviousMessagesResponse> completableFuturePreviousMessageResponse = new CompletableFuture<>();
-
-        stompSession.subscribe("/queue/" + completableFutureMessageAndSessionIdHolder.get(10, TimeUnit.SECONDS).getSessionId(), new GetPreviousMessagesFrameHandler(completableFuturePreviousMessageResponse));
-
-        stompSession.send("/app/previous-messages/2", message4.get_id());
-
-        PreviousMessagesResponse results = completableFuturePreviousMessageResponse.get(10, TimeUnit.SECONDS);
-
-        assertEquals(2, results.getMessages().size());
-        assertEquals(Arrays.asList(message3, message2), results.getMessages());
 
         stompSession.disconnect();
     }
@@ -246,24 +168,6 @@ public class PublicChatRoomControllerTest {
             messageAndSessionIdHolder.setSessionId(stompHeaders.getMessageId().substring(0, stompHeaders.getMessageId().length() - 2));
             messageAndSessionIdHolder.setMessage((Message) o);
             this.completableFuture.complete(messageAndSessionIdHolder);
-        }
-    }
-
-    private class GetPreviousMessagesFrameHandler implements StompFrameHandler {
-        private CompletableFuture<PreviousMessagesResponse> completableFuture;
-
-        private GetPreviousMessagesFrameHandler(CompletableFuture<PreviousMessagesResponse> completableFuture) {
-            this.completableFuture = completableFuture;
-        }
-
-        @Override
-        public Type getPayloadType(StompHeaders stompHeaders) {
-            return PreviousMessagesResponse.class;
-        }
-
-        @Override
-        public void handleFrame(StompHeaders stompHeaders, Object o) {
-            completableFuture.complete((PreviousMessagesResponse) o);
         }
     }
 }

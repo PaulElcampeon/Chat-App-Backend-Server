@@ -59,7 +59,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     public Message<?> preSend(Message<?> message, MessageChannel channel) {
                         final StompCommand command = (StompCommand) message.getHeaders().get("stompCommand");
                         final String sessionId = (String) message.getHeaders().get("simpSessionId");
-                        final StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(message);
                         if (command == StompCommand.DISCONNECT) {
 
                             publicChatRoomService.removeClientFromOnlineUsers(sessionId);
@@ -67,32 +66,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             publicChatRoomService.updateChatRoomWithCurrentUsers();
                         }
 
-//                        } else if (command == StompCommand.SUBSCRIBE && stompHeaderAccessor.getDestination().equals("/topic/public-room")) {
-//
-//                            String username;
-//
-//                            if (stompHeaderAccessor.containsNativeHeader("username")) {
-//
-//                                username = stompHeaderAccessor.getNativeHeader("username").get(0);
-//
-//                                if (username.equals("")) {
-//
-//                                    publicChatRoomService.giveClientName(sessionId);
-//
-//                                } else {
-//
-//                                    publicChatRoomService.addClientToOnlineUsers(username, sessionId);
-//                                }
-//
-//                            } else {
-//
-//                                publicChatRoomService.giveClientName(sessionId);
-//
-//                            }
-//
-//                            publicChatRoomService.updateChatRoomWithCurrentUsers();
-//
-//                        }
                         return message;
                     }
                 });

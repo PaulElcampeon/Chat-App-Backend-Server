@@ -88,7 +88,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
                 .where("_id").lt(objectId));
         query.limit(numberOfMessages);
         query.with(new Sort(Sort.Direction.DESC, "_id"));
-        List<Message> decryptedMessages =  mongoTemplate.find(query, Message.class).stream().map(this::decryptMessage).collect(Collectors.toList());
+        List<Message> decryptedMessages = mongoTemplate.find(query, Message.class).stream().map(this::decryptMessage).collect(Collectors.toList());
         return new PreviousMessagesResponse(decryptedMessages);
     }
 
@@ -97,7 +97,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
         Query query = new Query();
         query.limit(numberOfMessages);
         query.with(new Sort(Sort.Direction.DESC, "_id"));
-        List<Message> decryptedMessages =  mongoTemplate.find(query, Message.class).stream().map(this::decryptMessage).collect(Collectors.toList());
+        List<Message> decryptedMessages = mongoTemplate.find(query, Message.class).stream().map(this::decryptMessage).collect(Collectors.toList());
         return new FirstMessagesResponse(decryptedMessages);
     }
 
