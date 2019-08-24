@@ -1,7 +1,7 @@
 package com.P.G.chatappbackend.controllers;
 
 import com.P.G.chatappbackend.ChatAppBackendApplication;
-import com.P.G.chatappbackend.cache.CreateNamesCache;
+import com.P.G.chatappbackend.cache.CreatedNamesCache;
 import com.P.G.chatappbackend.cache.OnlineUserNameCache;
 import com.P.G.chatappbackend.config.WebSocketConfig;
 import com.P.G.chatappbackend.dto.FirstMessagesResponse;
@@ -55,7 +55,7 @@ public class PublicChatRoomControllerTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private CreateNamesCache nameCache;
+    private CreatedNamesCache nameCache;
 
     @Autowired
     private OnlineUserNameCache onlineUserNameCache;

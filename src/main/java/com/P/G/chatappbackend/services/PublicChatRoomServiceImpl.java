@@ -1,6 +1,6 @@
 package com.P.G.chatappbackend.services;
 
-import com.P.G.chatappbackend.cache.CreateNamesCache;
+import com.P.G.chatappbackend.cache.CreatedNamesCache;
 import com.P.G.chatappbackend.cache.OnlineUserNameCache;
 import com.P.G.chatappbackend.dto.FirstMessagesResponse;
 import com.P.G.chatappbackend.dto.OnlineUsers;
@@ -31,7 +31,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     private MongoTemplate mongoTemplate;
 
     @Autowired
-    private CreateNamesCache createdNamesCache;
+    private CreatedNamesCache createdNamesCache;
 
     @Autowired
     private OnlineUserNameCache onlineUserNameCache;

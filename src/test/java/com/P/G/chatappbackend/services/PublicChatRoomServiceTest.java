@@ -1,8 +1,7 @@
 package com.P.G.chatappbackend.services;
 
-import com.P.G.chatappbackend.cache.CreateNamesCache;
+import com.P.G.chatappbackend.cache.CreatedNamesCache;
 import com.P.G.chatappbackend.cache.OnlineUserNameCache;
-import com.P.G.chatappbackend.dto.OnlineUsers;
 import com.P.G.chatappbackend.models.Message;
 import com.P.G.chatappbackend.repositiories.MessageRepository;
 import com.P.G.chatappbackend.util.NameCreator;
@@ -25,7 +24,7 @@ import static org.mockito.Mockito.*;
 public class PublicChatRoomServiceTest {
 
     @Spy
-    private CreateNamesCache nameCache;
+    private CreatedNamesCache nameCache;
 
     @Spy
     private NameCreator nameCreator;

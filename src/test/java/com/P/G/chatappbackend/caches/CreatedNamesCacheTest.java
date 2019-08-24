@@ -1,6 +1,6 @@
 package com.P.G.chatappbackend.caches;
 
-import com.P.G.chatappbackend.cache.CreateNamesCache;
+import com.P.G.chatappbackend.cache.CreatedNamesCache;
 import com.P.G.chatappbackend.models.NameHolder;
 import com.P.G.chatappbackend.repositiories.NameRepository;
 import com.P.G.chatappbackend.util.NameCreator;
@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CreateNamesCacheTest {
+public class CreatedNamesCacheTest {
 
 
     @Spy
@@ -28,7 +28,7 @@ public class CreateNamesCacheTest {
     private NameRepository nameRepository;
 
     @InjectMocks
-    private CreateNamesCache nameCache;
+    private CreatedNamesCache nameCache;
 
     @Before
     public void init() {

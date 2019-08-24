@@ -1,6 +1,6 @@
 package com.P.G.chatappbackend.utils;
 
-import com.P.G.chatappbackend.cache.CreateNamesCache;
+import com.P.G.chatappbackend.cache.CreatedNamesCache;
 import com.P.G.chatappbackend.util.NameCreator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class NameCreatorTest {
 
     @Spy
-    private CreateNamesCache nameCache;
+    private CreatedNamesCache nameCache;
 
     @InjectMocks
     private NameCreator nameCreator;

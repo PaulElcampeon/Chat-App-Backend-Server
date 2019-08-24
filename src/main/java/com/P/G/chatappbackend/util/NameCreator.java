@@ -27,17 +27,4 @@ public class NameCreator {
         }
         return tempStorage;
     }
-
-//    public List<String> createNamesList() {
-//        List<String> tempStorage = new ArrayList<>(adjectives.length * nouns.length * verbs.length);
-//        for (String adjective : adjectives) {
-//            for (String noun : nouns) {
-//                for (String verb : verbs) {
-//                    stringBuilder.delete(0, stringBuilder.length());
-//                    tempStorage.add(stringBuilder.append(adjective).append(noun).append(verb).toString());
-//                }
-//            }
-//        }
-//        return tempStorage;
-//    }
 }
