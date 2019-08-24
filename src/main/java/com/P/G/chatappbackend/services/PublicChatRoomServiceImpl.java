@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,14 +32,10 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    @Autowired
     private CreatedNamesCache createdNamesCache;
 
     @Autowired
     private OnlineUserNameCache onlineUserNameCache;
-
-    @Autowired
-    private NameCreator nameCreator;
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -49,13 +44,11 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     private Logger logger = Logger.getLogger(PublicChatRoomServiceImpl.class.getName());
 
-    public PublicChatRoomServiceImpl() {
+    @Autowired
+    public PublicChatRoomServiceImpl(CreatedNamesCache createdNamesCache, NameCreator nameCreator) {
         basicTextEncryptor.setPassword("secret-password");
-    }
-
-    @Override
-    public void initializeNameCache() {
-        createdNamesCache.setNameCache(nameCreator.createMapOfNamesWithAvailability());
+        this.createdNamesCache = createdNamesCache;
+        this.createdNamesCache.setNameCache(nameCreator.createMapOfNamesWithAvailability());
     }
 
     @Override
@@ -73,7 +66,6 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     }
 
     @Override
-    @Async
     public Message processMessage(Message message) {
         logger.log(Level.INFO, String.format("Processing message %s", message));
 

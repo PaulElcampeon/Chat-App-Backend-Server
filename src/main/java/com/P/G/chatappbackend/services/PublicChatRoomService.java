@@ -8,8 +8,6 @@ import org.bson.types.ObjectId;
 
 public interface PublicChatRoomService {
 
-    void initializeNameCache();
-
     Message processMessage(Message message);
 
     OnlineUsers getListOfCurrentUsers();
