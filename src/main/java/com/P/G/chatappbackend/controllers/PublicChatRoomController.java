@@ -38,15 +38,17 @@ public class PublicChatRoomController {
     @ResponseBody
     FirstMessagesResponse getFirst10Messages(@PathVariable("numberOfMessages") int numberOfMessages) {
         logger.log(Level.INFO, String.format("Client has just made a request for the latest %d messages", numberOfMessages));
+
         return chatRoomServicePublic.getFirstNMessages(numberOfMessages);
     }
 
     @RequestMapping(value = "/message/previous/{numberOfMessages}", method = RequestMethod.POST)
     @ResponseBody
     public PreviousMessagesResponse getPreviousMessages(@PathVariable("numberOfMessages") int numberOfMessages, @RequestBody MessageId messageId) {
-        logger.log(Level.INFO, String.format("Message id is %s", messageId));
+        logger.log(Level.INFO, String.format("Client made a request for previous messages with messageId %s", messageId));
+
         ObjectId objectId = new ObjectId(messageId.getTimestamp(), messageId.getMachineIdentifier(), messageId.getProcessIdentifier(), messageId.getCounter());
-        logger.log(Level.INFO, String.format("Object id is %s", objectId));
+
         return chatRoomServicePublic.getNPreviousMessages(objectId, numberOfMessages);
     }
 
@@ -54,7 +56,9 @@ public class PublicChatRoomController {
     @SendTo(value = "/topic/public-room")
     public Message sendMessage(@RequestBody Message message, @Header("simpSessionId") String sessionId) {
         logger.log(Level.INFO, String.format("%s has just sent the message %s", message.getSender(), message.getContent()));
+
         Message encryptedMessage = chatRoomServicePublic.processMessage(message);
+
         return chatRoomServicePublic.decryptMessage(encryptedMessage);
     }
 }
