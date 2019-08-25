@@ -37,8 +37,8 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     @Autowired
     private OnlineUserNameCache onlineUserNameCache;
 
-//    @Autowired
-//    private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     private BasicTextEncryptor basicTextEncryptor = new BasicTextEncryptor();
 
