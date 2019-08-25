@@ -37,8 +37,8 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
     @Autowired
     private OnlineUserNameCache onlineUserNameCache;
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+//    @Autowired
+//    private SimpMessagingTemplate simpMessagingTemplate;
 
     private BasicTextEncryptor basicTextEncryptor = new BasicTextEncryptor();
 
@@ -113,7 +113,7 @@ public class PublicChatRoomServiceImpl implements PublicChatRoomService {
 
     @Override
     public void updateChatRoomWithCurrentUsers() {
-        simpMessagingTemplate.convertAndSend("/topic/public-room.active-users", getListOfCurrentUsers());
+//        simpMessagingTemplate.convertAndSend("/topic/public-room.active-users", getListOfCurrentUsers());
     }
 
     public Message test(int messagePos) {

@@ -1,5 +1,6 @@
 package com.P.G.chatappbackend.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -10,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Message {
 
     @Id
-    private ObjectId _id;
+    private ObjectId roomId;
     private String sender;
     private String content;
     private long timeSent;

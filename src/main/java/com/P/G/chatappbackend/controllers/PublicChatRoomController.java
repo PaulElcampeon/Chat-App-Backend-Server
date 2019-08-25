@@ -7,6 +7,7 @@ import com.P.G.chatappbackend.models.MessageId;
 import com.P.G.chatappbackend.services.PublicChatRoomService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -24,8 +25,8 @@ public class PublicChatRoomController {
     @Autowired
     private PublicChatRoomService chatRoomServicePublic;
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+//    @Autowired
+//    private SimpMessagingTemplate simpMessagingTemplate;
 
     private Logger logger = Logger.getLogger(PublicChatRoomController.class.getName());
 
@@ -52,13 +53,15 @@ public class PublicChatRoomController {
         return chatRoomServicePublic.getNPreviousMessages(objectId, numberOfMessages);
     }
 
-    @MessageMapping(value = "/send")
-    @SendTo(value = "/topic/public-room")
-    public Message sendMessage(@RequestBody Message message, @Header("simpSessionId") String sessionId) {
-        logger.log(Level.INFO, String.format("%s has just sent the message %s", message.getSender(), message.getContent()));
-
-        Message encryptedMessage = chatRoomServicePublic.processMessage(message);
-
-        return chatRoomServicePublic.decryptMessage(encryptedMessage);
-    }
+//    @MessageMapping(value = "/send")
+//    @SendTo(value = "/topic/public-room")
+//    public Message sendMessage(@RequestBody Message message, MessageHeaders messageHeaders, @Header("simpSessionId") String sessionId) {
+//        System.out.println(messageHeaders);
+//        System.out.println(sessionId);
+//        logger.log(Level.INFO, String.format("%s has just sent the message %s", message.getSender(), message.getContent()));
+//
+//        Message encryptedMessage = chatRoomServicePublic.processMessage(message);
+//
+//        return chatRoomServicePublic.decryptMessage(encryptedMessage);
+//    }
 }
